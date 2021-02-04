@@ -16,7 +16,9 @@
 
 **Plugin Author:** _[creecros](https://github.com/creecros)_
 
+# Requirements
 
+https://github.com/barbushin/php-imap#requirements
 
 # Install
 
