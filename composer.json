@@ -1,0 +1,5 @@
+{
+    "require": {
+        "php-imap/php-imap": "^4.1.0"
+    }
+}
