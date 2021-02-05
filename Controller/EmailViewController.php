@@ -31,7 +31,8 @@ class EmailViewController extends BaseController
         	'{'.$server.':' . $port . '/imap/ssl}INBOX', 
         	$user, 
         	$password, 
-        	false // when $attachmentsDir is false we don't save attachments
+        	false
+        	//DATA_DIR . '/files/kbphpimap/files' // when $attachmentsDir is false we don't save attachments
         );
         
         try {
@@ -58,21 +59,45 @@ class EmailViewController extends BaseController
         	foreach($email->to as $to){
         	    if ($i === 0) {
             	    (strpos($to, 'Task#') == 0) ? $task_id = str_replace('Task#', '', $to) : $task_id = null;
-            	    error_log($task_id . ' before next test inside loop',0);
         	    }
         	    $i++;
         	}
         	$subject = $email->subject;
         	$message_id = $email->messageId;
         	$date = $email->date;
-        
+            
         	if($email->textHtml) {
+        	    $email->embedImageAttachments();
         		$message = $email->textHtml;
         	} else {
         		$message = $email->textPlain;
         	}
         	
+            if($email->hasAttachments()) {
+            		$has_attach = 'y';
+            	} else {
+            		$has_attach = 'n';
+            	}
+            
+            $attached_files = array();
+
+            $images = array();
+            
             if (!is_null($task_id) && intval($task_id) === intval($task['id'])) {
+                
+                if(!empty($email->getAttachments())) {
+                		$attachments = $email->getAttachments();
+                		foreach ($attachments as $attachment) {
+                		    $attached_files[] = array(
+                		        'filename' => $attachment->filename,
+                		        'name' => $attach_names[] = $attachment->name,
+                		        );
+                		    if (!file_exists(DATA_DIR . '/files/kbphpimap/files/' . $task['id'])) { mkdir(DATA_DIR . '/files/kbphpimap/files/' . $task['id'], 0755, true); }
+                            $attachment->setFilePath(DATA_DIR . '/files/kbphpimap/files/' . $task['id'] . '/' . $attachment->name);
+                            if (!file_exists(DATA_DIR . '/files/kbphpimap/files/' . $task['id'] . '/' . $attachment->name)) { $attachment->saveToDisk(); }
+                		}
+                	} 
+
                 $emails[] = array(
                     'task_id' => $task_id,
                     'from_name' => $from_name,
@@ -81,6 +106,8 @@ class EmailViewController extends BaseController
                     'message_id' => $message_id,
                     'message' => $message,
                     'date' => $date,
+                    'has_attach' => $has_attach,
+                    'attachments' => $attached_files,
                 );
             }
 
@@ -96,6 +123,35 @@ class EmailViewController extends BaseController
             'tags'    => $this->taskTagModel->getTagsByTask($task['id']),
         )));
         
+    }
+    
+    /**
+     * File download
+     *
+     * @access public
+     */
+    public function download()
+    {
+        $task_id =  $this->request->getIntegerParam('task_id');
+        $name =  $this->request->getStringParam('name');
+        $filename =  $this->request->getStringParam('filename');
+        
+        try {
+            $file = DATA_DIR . '/files/kbphpimap/files/' . $task_id . '/' . $name;
+            if (file_exists($file)) {
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="'.basename($file).'"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($file));
+                readfile($file);
+                exit;
+            }
+        } catch (ObjectStorageException $e) {
+            $this->logger->error($e->getMessage());
+        }
     }
         
 }

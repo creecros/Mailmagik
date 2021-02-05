@@ -9,6 +9,8 @@ class Plugin extends Base
 {
 	public function initialize()
 	{
+        if (!file_exists(DATA_DIR . '/files/kbphpimap/files')) { mkdir(DATA_DIR . '/files/kbphpimap/files', 0755, true); }
+
 	    // Hooks
         $this->template->hook->attach('template:task:sidebar:information', 'kbphpimap:task/emails');
         
