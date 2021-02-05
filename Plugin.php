@@ -16,6 +16,10 @@ class Plugin extends Base
         
         //CONFIG HOOK
         $this->template->hook->attach('template:config:email', 'kbphpimap:config/config');
+        
+        //css
+        $this->hook->on('template:layout:css', array('template' => 'plugins/Kbphpimap/Assets/css/kbphpimap.css'));
+
 	}
 	
 	public function getPluginName()	

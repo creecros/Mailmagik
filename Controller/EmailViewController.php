@@ -5,6 +5,8 @@ namespace Kanboard\Plugin\Kbphpimap\Controller;
 require __DIR__.'/../vendor/autoload.php';
 
 use Kanboard\Controller\BaseController;
+use Kanboard\Model\UserModel;
+use Kanboard\Model\ProjectModel;
 use PhpImap;
 
 
@@ -18,22 +20,10 @@ class EmailViewController extends BaseController
 
     public function view()
     {
-        $task = $this->getTask();
-        
+        $task = $this->getTask(); 
         $emails = array();
         
-        $server = $this->configModel->get('kbphpimap_server', '');
-        $port = $this->configModel->get('kbphpimap_port', '');
-        $user = $this->configModel->get('kbphpimap_user', '');
-        $password = $this->configModel->get('kbphpimap_password', '');
-        
-        $mailbox = new PhpImap\Mailbox(
-        	'{'.$server.':' . $port . '/imap/ssl}INBOX', 
-        	$user, 
-        	$password, 
-        	false
-        	//DATA_DIR . '/files/kbphpimap/files' // when $attachmentsDir is false we don't save attachments
-        );
+        $mailbox = $this->login();
         
         try {
         	// Search in mailbox folder for specific emails
@@ -88,18 +78,19 @@ class EmailViewController extends BaseController
                 if(!empty($email->getAttachments())) {
                 		$attachments = $email->getAttachments();
                 		foreach ($attachments as $attachment) {
-                		    $attached_files[] = array(
-                		        'filename' => $attachment->filename,
-                		        'name' => $attach_names[] = $attachment->name,
-                		        );
+                		    $attached_files[] = $attachment->name;
                 		    if (!file_exists(DATA_DIR . '/files/kbphpimap/files/' . $task['id'])) { mkdir(DATA_DIR . '/files/kbphpimap/files/' . $task['id'], 0755, true); }
                             $attachment->setFilePath(DATA_DIR . '/files/kbphpimap/files/' . $task['id'] . '/' . $attachment->name);
                             if (!file_exists(DATA_DIR . '/files/kbphpimap/files/' . $task['id'] . '/' . $attachment->name)) { $attachment->saveToDisk(); }
                 		}
                 	} 
 
+                if (!$this->userModel->getByEmail($from_email)) { $connect_to_user = null; } else { $connect_to_user = $this->userModel->getByEmail($from_email); }
+
                 $emails[] = array(
+                    'mail_id' => $mail_id,
                     'task_id' => $task_id,
+                    'project_id' => $this->projectModel->getById($task['project_id']),
                     'from_name' => $from_name,
                     'from_email' => $from_email,
                     'subject' => $subject,
@@ -108,6 +99,7 @@ class EmailViewController extends BaseController
                     'date' => $date,
                     'has_attach' => $has_attach,
                     'attachments' => $attached_files,
+                    'user' => $connect_to_user,
                 );
             }
 
@@ -134,8 +126,7 @@ class EmailViewController extends BaseController
     {
         $task_id =  $this->request->getIntegerParam('task_id');
         $name =  $this->request->getStringParam('name');
-        $filename =  $this->request->getStringParam('filename');
-        
+
         try {
             $file = DATA_DIR . '/files/kbphpimap/files/' . $task_id . '/' . $name;
             if (file_exists($file)) {
@@ -152,6 +143,49 @@ class EmailViewController extends BaseController
         } catch (ObjectStorageException $e) {
             $this->logger->error($e->getMessage());
         }
+    }
+    
+    /**
+     * Email delete
+     *
+     * @access public
+     */
+    public function delete()
+    {
+        $mail_id =  $this->request->getIntegerParam('mail_id');
+        $task_id =  $this->request->getIntegerParam('task_id');
+
+        $mailbox = $this->login();
+        	
+        $mailbox->deleteMail($mail_id);
+        $mailbox->disconnect();
+        
+        $this->view($task_id);
+        
+    }
+    
+    /**
+     * Email delete
+     *
+     * @access public
+     */
+    private function login()
+    {
+
+        $server = $this->configModel->get('kbphpimap_server', '');
+        $port = $this->configModel->get('kbphpimap_port', '');
+        $user = $this->configModel->get('kbphpimap_user', '');
+        $password = $this->configModel->get('kbphpimap_password', '');
+
+        $mailbox = new PhpImap\Mailbox(
+        	'{'.$server.':' . $port . '/imap/ssl}INBOX', 
+        	$user, 
+        	$password, 
+        	false
+        );
+    
+        return $mailbox;
+
     }
         
 }
