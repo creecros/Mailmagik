@@ -1,0 +1,10 @@
+.accordion-title:focus {
+    outline: none;
+}
+
+.email-event {
+    border: .2px solid #8a8a8a;
+    border-radius: 5px;
+    padding: 8px;
+    margin-bottom: 5px;
+}
