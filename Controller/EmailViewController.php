@@ -90,7 +90,7 @@ class EmailViewController extends BaseController
                 $emails[] = array(
                     'mail_id' => $mail_id,
                     'task_id' => $task_id,
-                    'project_id' => $this->projectModel->getById($task['project_id']),
+                    'project_id' => $this->projectModel->getById($task['project_id'])['id'],
                     'from_name' => $from_name,
                     'from_email' => $from_email,
                     'subject' => $subject,
