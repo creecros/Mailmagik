@@ -33,9 +33,9 @@
     try {
         $mail_ids = $mailbox->searchMailbox('UNSEEN');
     } catch (ConnectionException $ex) {
-        die('IMAP connection failed: '.$ex->getMessage());
+        exit('IMAP connection failed: '.$ex->getMessage());
     } catch (Exception $ex) {
-        die('An error occured: '.$ex->getMessage());
+        exit('An error occured: '.$ex->getMessage());
     }
 
     foreach ($mail_ids as $mail_id) {
@@ -46,7 +46,7 @@
             false // Do NOT mark emails as seen (optional)
         );
 
-        echo 'from-name: '.(string) (isset($email->fromName) ? $email->fromName : $email->fromAddress)."\n";
+        echo 'from-name: '.(string) ($email->fromName ?? $email->fromAddress)."\n";
         echo 'from-email: '.(string) $email->fromAddress."\n";
         echo 'to: '.(string) $email->toString."\n";
         echo 'subject: '.(string) $email->subject."\n";

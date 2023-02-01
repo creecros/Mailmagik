@@ -16,9 +16,9 @@ use const ENCQUOTEDPRINTABLE;
  */
 class DataPartInfo
 {
-    const TEXT_PLAIN = 0;
+    public const TEXT_PLAIN = 0;
 
-    const TEXT_HTML = 1;
+    public const TEXT_HTML = 1;
 
     /**
      * @var int
@@ -79,26 +79,29 @@ class DataPartInfo
         if (0 === $this->part) {
             $this->data = Imap::body($this->mail->getImapStream(), $this->id, $this->options);
         } else {
+            if (null !== $this->data) {
+                return $this->data;
+            }
             $this->data = Imap::fetchbody($this->mail->getImapStream(), $this->id, $this->part, $this->options);
         }
 
-        return $this->decodeAfterFetch();
+        return $this->decodeAfterFetch($this->data);
     }
 
-    protected function decodeAfterFetch(): string
+    public function decodeAfterFetch(string $data): string
     {
         switch ($this->encoding) {
             case ENC8BIT:
-                $this->data = \imap_utf8((string) $this->data);
+                $this->data = \imap_utf8((string) $data);
                 break;
             case ENCBINARY:
-                $this->data = \imap_binary((string) $this->data);
+                $this->data = \imap_binary((string) $data);
                 break;
             case ENCBASE64:
-                $this->data = \base64_decode((string) $this->data, false);
+                $this->data = \base64_decode((string) $data, false);
                 break;
             case ENCQUOTEDPRINTABLE:
-                $this->data = \quoted_printable_decode((string) $this->data);
+                $this->data = \quoted_printable_decode((string) $data);
                 break;
         }
 
@@ -107,9 +110,14 @@ class DataPartInfo
 
     protected function convertEncodingAfterFetch(): string
     {
-        if (isset($this->charset) and !empty(\trim($this->charset))) {
+        if (isset($this->charset) && !empty(\trim($this->charset))) {
             $this->data = $this->mail->decodeMimeStr(
                 (string) $this->data // Data to convert
+            );
+
+            $this->data = $this->mail->convertToUtf8(
+                $this->data,
+                $this->charset
             );
         }
 
