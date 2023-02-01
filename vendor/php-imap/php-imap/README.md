@@ -1,10 +1,14 @@
 # PHP IMAP
 
 [![GitHub release](https://img.shields.io/github/release/barbushin/php-imap.svg?style=flat-square)](https://packagist.org/packages/php-imap/php-imap)
+[![Supported PHP Version](https://img.shields.io/packagist/php-v/php-imap/php-imap.svg)](README.md)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
 [![Packagist](https://img.shields.io/packagist/dt/php-imap/php-imap.svg?style=flat-square)](https://packagist.org/packages/php-imap/php-imap)
-[![Build Status](https://travis-ci.org/barbushin/php-imap.svg?branch=master)](https://travis-ci.org/barbushin/php-imap)
-[![Supported PHP Version](https://img.shields.io/packagist/php-v/php-imap/php-imap.svg)](README.md)
+
+[![CI PHP Unit Tests](https://github.com/barbushin/php-imap/actions/workflows/php_unit_tests.yml/badge.svg?branch=master)](https://github.com/barbushin/php-imap/actions/workflows/php_unit_tests.yml)
+[![CI PHP Static Analysis](https://github.com/barbushin/php-imap/actions/workflows/php_static_analysis.yml/badge.svg?branch=master)](https://github.com/barbushin/php-imap/actions/workflows/php_static_analysis.yml)
+[![CI PHP Code Coverage](https://github.com/barbushin/php-imap/actions/workflows/php_code_coverage.yml/badge.svg?branch=master)](https://github.com/barbushin/php-imap/actions/workflows/php_code_coverage.yml)
+
 [![Maintainability](https://api.codeclimate.com/v1/badges/02f72a4fd695cb7e2976/maintainability)](https://codeclimate.com/github/barbushin/php-imap/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/02f72a4fd695cb7e2976/test_coverage)](https://codeclimate.com/github/barbushin/php-imap/test_coverage)
 [![Type Coverage](https://shepherd.dev/github/barbushin/php-imap/coverage.svg)](https://shepherd.dev/github/barbushin/php-imap)
@@ -22,19 +26,22 @@ Initially released in December 2012, the PHP IMAP Mailbox is a powerful and open
 
 ### Requirements
 
-| PHP Version  | php-imap Version |
-| ------------- | ------------- |
-| 5.6  | 3.x  |
-| 7.0  | 3.x  |
-| 7.1  | 3.x  |
-| 7.2  | 3.x, 4.x |
-| 7.3  | 3.x, 4.x |
-| 7.4  | >3.0.33, 4.x |
+| PHP Version  | php-imap Version | php-imap status |
+| ------------- | ------------- | ------------- |
+| 5.6  | 3.x  | End of life |
+| 7.0  | 3.x  | End of life |
+| 7.1  | 3.x  | End of life |
+| 7.2  | 3.x, 4.x | End of life |
+| 7.3  | 3.x, 4.x | End of life |
+| 7.4  | >3.0.33, 4.x, 5.x | Active support |
+| 8.0  | >3.0.33, 4.x, 5.x | Active support |
+| 8.1  | >4.3.0, 5.x | Active support |
 
 * PHP `fileinfo` extension must be present; so make sure this line is active in your php.ini: `extension=php_fileinfo.dll`
 * PHP `iconv` extension must be present; so make sure this line is active in your php.ini: `extension=php_iconv.dll`
 * PHP `imap` extension must be present; so make sure this line is active in your php.ini: `extension=php_imap.dll`
 * PHP `mbstring` extension must be present; so make sure this line is active in your php.ini: `extension=php_mbstring.dll`
+* PHP `json` extension must be present; so make sure this line is active in your php.ini: `extension=json.dll`
 
 ### Installation by Composer
 
@@ -45,10 +52,6 @@ Install the [latest available release](https://github.com/barbushin/php-imap/rel
 Install the latest available and stable source code from `master`, which is may not released / tagged yet:
 
 	$ composer require php-imap/php-imap:dev-master
-
-Install the latest available and may unstable source code from `develop`, which is may not properly tested yet:
-
-	$ composer require php-imap/php-imap:dev-develop
 
 ### Run Tests
 
@@ -70,6 +73,8 @@ You can run all PHPUnit tests by running the following command (inside of the in
 
 Below, you'll find an example code how you can use this library. For further information and other examples, you may take a look at the [wiki](https://github.com/barbushin/php-imap/wiki).
 
+By default, this library uses random filenames for attachments as identical file names from other emails would overwrite other attachments. If you want to keep the original file name, you can set the attachment filename mode to ``true``, but then you also need to ensure, that those files don't get overwritten by other emails for example.
+
 ```php
 // Create PhpImap\Mailbox instance for all further actions
 $mailbox = new PhpImap\Mailbox(
@@ -77,7 +82,9 @@ $mailbox = new PhpImap\Mailbox(
 	'some@gmail.com', // Username for the before configured mailbox
 	'*********', // Password for the before configured username
 	__DIR__, // Directory, where attachments will be saved (optional)
-	'UTF-8' // Server encoding (optional)
+	'UTF-8', // Server encoding (optional)
+    true, // Trim leading/ending whitespaces of IMAP path (optional)
+    false // Attachment filename mode (optional; false = random filename; true = original filename)
 );
 
 // set some connection arguments (if appropriate)
@@ -91,7 +98,7 @@ try {
 	// PHP.net imap_search criteria: http://php.net/manual/en/function.imap-search.php
 	$mailsIds = $mailbox->searchMailbox('ALL');
 } catch(PhpImap\Exceptions\ConnectionException $ex) {
-	echo "IMAP connection failed: " . $ex;
+	echo "IMAP connection failed: " . implode(",", $ex->getErrors('all'));
 	die();
 }
 
@@ -121,12 +128,12 @@ echo "\n\nAttachments:\n";
 print_r($mail->getAttachments());
 ```
 
-Method imap() allows to call any imap function in a context of the the instance:
+Method `imap()` allows to call any [PHP IMAP function](https://www.php.net/manual/ref.imap.php) in a context of the instance. Example:
 
 ```php
-// Call imap_check();
-// http://php.net/manual/en/function.imap-check.php
-$info = $mailbox->imap('check'); //
+// Call imap_check() - see http://php.net/manual/function.imap-check.php
+$info = $mailbox->imap('check');
+
 
 // Show current time for the mailbox
 $currentServerTime = isset($info->Date) && $info->Date ? date('Y-m-d H:i:s', strtotime($info->Date)) : 'Unknown';
@@ -154,6 +161,30 @@ foreach($folders as $folder) {
 }
 
 print_r($mails_ids);
+```
+
+### Upgrading from 3.x
+
+Prior to 3.1, `Mailbox` used a "magic" method (`Mailbox::imap()`), with the
+class `Imap` now performing it's purpose to call many `imap_*` functions with
+automated string encoding/decoding of arguments and return values:
+
+Before:
+
+```php
+    public function checkMailbox()
+    {
+        return $this->imap('check');
+    }
+```
+
+After:
+
+```php
+    public function checkMailbox(): object
+    {
+        return Imap::check($this->getImapStream());
+    }
 ```
 
 ### Recommended

@@ -47,7 +47,7 @@ class EmailViewController extends BaseController
         	$from_name = (isset($email->fromName)) ? $email->fromName : $email->fromAddress;
         	$from_email = $email->fromAddress;
         	foreach($email->to as $to){
-        	    if ($i === 0) {
+        	    if ($i === 0 && $to != null) {
             	    (strpos($to, 'Task#') == 0) ? $task_id = trim(str_replace('Task#', '', $to), ' ') : $task_id = null;
         	    }
         	    $i++;
@@ -72,7 +72,6 @@ class EmailViewController extends BaseController
             $attached_files = array();
 
             $images = array();
-            
             if (!is_null($task_id) && intval($task_id) === intval($task['id'])) {
                 
                 if(!empty($email->getAttachments())) {

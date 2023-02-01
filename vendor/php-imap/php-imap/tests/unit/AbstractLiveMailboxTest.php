@@ -41,28 +41,10 @@ use Throwable;
  */
 abstract class AbstractLiveMailboxTest extends TestCase
 {
-    /**
-     * Provides constructor arguments for a live mailbox.
-     *
-     * @psalm-return MAILBOX_ARGS[]
-     */
-    public function MailBoxProvider(): array
-    {
-        $sets = [];
-
-        $imapPath = \getenv('PHPIMAP_IMAP_PATH');
-        $login = \getenv('PHPIMAP_LOGIN');
-        $password = \getenv('PHPIMAP_PASSWORD');
-
-        if (\is_string($imapPath) && \is_string($login) && \is_string($password)) {
-            $sets['CI ENV'] = [new HiddenString($imapPath), new HiddenString($login), new HiddenString($password, true, true), \sys_get_temp_dir()];
-        }
-
-        return $sets;
-    }
+    use LiveMailboxTestingTrait;
 
     /**
-     * @psalm-return Generator<int, array{0:COMPOSE_ENVELOPE, 1:COMPOSE_BODY, 2:string}, mixed, void>
+     * @psalm-return Generator<empty, empty, mixed, void>
      */
     public function ComposeProvider(): Generator
     {
@@ -118,9 +100,9 @@ abstract class AbstractLiveMailboxTest extends TestCase
             return;
         }
 
-        list($search_criteria) = $this->SubjectSearchCriteriaAndSubject($envelope);
+        [$search_criteria] = $this->SubjectSearchCriteriaAndSubject($envelope);
 
-        list($mailbox, $remove_mailbox, $path) = $this->getMailboxFromArgs(
+        [$mailbox, $remove_mailbox, $path] = $this->getMailboxFromArgs(
             $mailbox_args
         );
 
@@ -194,49 +176,6 @@ abstract class AbstractLiveMailboxTest extends TestCase
     }
 
     /**
-     * Get instance of Mailbox, pre-set to a random mailbox.
-     *
-     * @param string $attachmentsDir
-     * @param string $serverEncoding
-     *
-     * @return mixed[]
-     *
-     * @psalm-return array{0:Mailbox, 1:string, 2:HiddenString}
-     */
-    protected function getMailbox(HiddenString $imapPath, HiddenString $login, HiddenString $password, $attachmentsDir, $serverEncoding = 'UTF-8')
-    {
-        $mailbox = new Mailbox($imapPath->getString(), $login->getString(), $password->getString(), $attachmentsDir, $serverEncoding);
-
-        $random = 'test-box-'.\date('c').\bin2hex(\random_bytes(4));
-
-        $mailbox->createMailbox($random);
-
-        $mailbox->switchMailbox($random, false);
-
-        return [$mailbox, $random, $imapPath];
-    }
-
-    /**
-     * @psalm-param MAILBOX_ARGS $mailbox_args
-     *
-     * @return mixed[]
-     *
-     * @psalm-return array{0:Mailbox, 1:string, 2:HiddenString}
-     */
-    protected function getMailboxFromArgs(array $mailbox_args): array
-    {
-        list($path, $username, $password, $attachments_dir) = $mailbox_args;
-
-        return $this->getMailbox(
-            $path,
-            $username,
-            $password,
-            $attachments_dir,
-            isset($mailbox_args[4]) ? $mailbox_args[4] : 'UTF-8'
-        );
-    }
-
-    /**
      * Get subject search criteria and subject.
      *
      * @psalm-param array{subject?:mixed} $envelope
@@ -246,14 +185,14 @@ abstract class AbstractLiveMailboxTest extends TestCase
     protected function SubjectSearchCriteriaAndSubject(array $envelope): array
     {
         /** @var string|null */
-        $subject = isset($envelope['subject']) ? $envelope['subject'] : null;
+        $subject = $envelope['subject'] ?? null;
 
         $this->assertIsString($subject);
 
-        $search_criteria = \sprintf('SUBJECT "%s"', (string) $subject);
+        $search_criteria = \sprintf('SUBJECT "%s"', $subject);
 
         /** @psalm-var array{0:string, 1:string} */
-        return [$search_criteria, (string) $subject];
+        return [$search_criteria, $subject];
     }
 
     protected function MaybeSkipAppendTest(array $envelope): bool

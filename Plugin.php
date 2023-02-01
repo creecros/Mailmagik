@@ -3,6 +3,8 @@
 namespace Kanboard\Plugin\Kbphpimap;
 
 use Kanboard\Core\Plugin\Base;
+use Kanboard\Plugin\Kbphpimap\Action\ConvertEmailToTask;
+
 
 class Plugin extends Base
 
@@ -19,6 +21,8 @@ class Plugin extends Base
         
         //css
         $this->hook->on('template:layout:css', array('template' => 'plugins/Kbphpimap/Assets/css/kbphpimap.css'));
+		
+		$this->actionManager->register(new ConvertEmailToTask($this->container));
 
 	}
 	
@@ -34,7 +38,7 @@ class Plugin extends Base
 
 	public function getPluginVersion() 
 	{ 	 
-		return '1.0.0'; 
+		return '1.1.0'; 
 	}
 
 	public function getPluginDescription() 
