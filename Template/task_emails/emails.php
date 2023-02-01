@@ -15,7 +15,7 @@
                 <div class="avatar avatar-48 avatar-left"><div class="avatar-letter" style="background-color: #5d5d5d" title="test" role="img" aria-label="test">?</div></div>
             <?php endif ?>
             <span style="font-style: italic"><?= $this->dt->datetime(strtotime($email['date'])) ?></span>
-            <span style="float: right"><?= $this->url->icon('trash', '', 'EmailViewController', 'delete', array('plugin' => 'kbphpimap', 'mail_id' => $email['mail_id'], 'task_id' => $email['task_id'], 'project_id' => $email['project_id'])) ?></span>
+            <span style="float: right"><?= $this->url->icon('trash', '', 'EmailViewController', 'delete', array('plugin' => 'kbphpimap', 'mail_id' => $email['mail_id'], 'task_id' => $email['task_id'])) ?></span>
             <br>
             <strong><?= $email['from_name'] . ' &lt;' . $email['from_email'] . '&gt;' ?></strong>
             <br>
