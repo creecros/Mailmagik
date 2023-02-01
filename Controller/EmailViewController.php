@@ -48,7 +48,7 @@ class EmailViewController extends BaseController
         	$from_email = $email->fromAddress;
         	foreach($email->to as $to){
         	    if ($i === 0) {
-            	    (strpos($to, 'Task#') == 0) ? $task_id = str_replace('Task#', '', $to) : $task_id = null;
+            	    (strpos($to, 'Task#') == 0) ? $task_id = trim(str_replace('Task#', '', $to), ' ') : $task_id = null;
         	    }
         	    $i++;
         	}
