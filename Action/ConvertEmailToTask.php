@@ -133,6 +133,8 @@ class ConvertEmailToTask extends Base
                     'title' => $subject,
                     'description' => isset($message) ? $message : '',
                     'creator_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
+                    'column_id' => $this->getParam('column_id'),
+                    'color_id' => $this->getParam('color_id'),
                 ));
                 
                 /* Need to figure this out
