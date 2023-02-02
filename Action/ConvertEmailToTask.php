@@ -87,7 +87,7 @@ class ConvertEmailToTask extends Base
         	// Search in mailbox folder for specific emails
         	// PHP.net imap_search criteria: http://php.net/manual/en/function.imap-search.php
         	// Here, we search for "all" emails
-        	$mails_ids = $mailbox->searchMailbox('ALL');
+        	$mails_ids = $mailbox->searchMailbox('UNSEEN');
         } catch(PhpImap\Exceptions\ConnectionException $ex) {
         	die();
         }
@@ -137,14 +137,19 @@ class ConvertEmailToTask extends Base
                     'color_id' => $this->getParam('color_id'),
                 ));
                 
-                /* Need to figure this out
                 if(!empty($email->getAttachments())) {
                 		$attachments = $email->getAttachments();
-                		$this->taskFileModel->uploadFile($task_id, $attachment->getFileInfo(FILEINFO_RAW));
+                		foreach ($attachments as $attachment) {
+                		    $attached_files[] = $attachment->name;
+                		    if (!file_exists(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id)) { mkdir(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id, 0755, true); }
+                            $attachment->setFilePath(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name);
+                            if (!file_exists(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name)) { $attachment->saveToDisk(); }
+                            $file = file_get_contents(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name);
+                            $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
+                		}
                 	} 
-                */
-                	
-                $mailbox->deleteMail($mail_id);
+                
+                $mailbox->markMailAsRead($mail_id);
                 
             }
 
