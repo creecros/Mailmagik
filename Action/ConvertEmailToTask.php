@@ -122,8 +122,6 @@ class ConvertEmailToTask extends Base
             		$has_attach = 'n';
             	}
             
-            $attached_files = array();
-            $images = array();
             if (!is_null($project_id) && intval($project_id) === intval($project['id'])) {
                 
                 if (!$this->userModel->getByEmail($from_email)) { $connect_to_user = null; } else { $connect_to_user = $this->userModel->getByEmail($from_email); }
