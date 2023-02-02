@@ -4,6 +4,7 @@ namespace Kanboard\Plugin\Kbphpimap;
 
 use Kanboard\Core\Plugin\Base;
 use Kanboard\Plugin\Kbphpimap\Action\ConvertEmailToTask;
+use Kanboard\Plugin\Kbphpimap\Action\ConvertEmailToComment;
 
 
 class Plugin extends Base
@@ -23,6 +24,7 @@ class Plugin extends Base
         $this->hook->on('template:layout:css', array('template' => 'plugins/Kbphpimap/Assets/css/kbphpimap.css'));
 		
 		$this->actionManager->register(new ConvertEmailToTask($this->container));
+		$this->actionManager->register(new ConvertEmailToComment($this->container));
 
 	}
 	
