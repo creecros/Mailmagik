@@ -139,10 +139,12 @@ class ConvertEmailToTask extends Base
                 		$attachments = $email->getAttachments();
                 		foreach ($attachments as $attachment) {
                 		    if (!file_exists(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id)) { mkdir(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id, 0755, true); }
-                            $attachment->setFilePath(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name);
-                            if (!file_exists(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name)) { $attachment->saveToDisk(); }
-                            $file = file_get_contents(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name);
+                            $tmp_name = DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name;
+                            $attachment->setFilePath($tmp_name);
+                            if (!file_exists($tmp_name)) { $attachment->saveToDisk(); }
+                            $file = file_get_contents($tmp_name);
                             $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
+                            unlink($tmp_name);
                 		}
                 	} 
                 
