@@ -11,12 +11,20 @@ class ComposerStaticInit725b8eabb4b914d90717f055642ed4c2
         array (
             'PhpImap\\' => 8,
         ),
+        'L' => 
+        array (
+            'League\\HTMLToMarkdown\\' => 22,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'PhpImap\\' => 
         array (
             0 => __DIR__ . '/..' . '/php-imap/php-imap/src/PhpImap',
+        ),
+        'League\\HTMLToMarkdown\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/league/html-to-markdown/src',
         ),
     );
 

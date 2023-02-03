@@ -1,5 +1,7 @@
 {
     "require": {
-        "php-imap/php-imap": "^5.0.1"
+        "php-imap/php-imap": "^5.0.1",
+        "league/html-to-markdown" : "5.1.0"
     }
+    
 }

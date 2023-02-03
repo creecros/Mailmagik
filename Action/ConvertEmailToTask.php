@@ -10,6 +10,8 @@ use Kanboard\Model\ProjectModel;
 use PhpImap;
 use Kanboard\Model\TaskModel;
 use Kanboard\Action\Base;
+use League\HTMLToMarkdown\HtmlConverter;
+
 
 /**
  * Email a task notification of impending due date 
@@ -77,7 +79,7 @@ class ConvertEmailToTask extends Base
     public function doAction(array $data)
     {
 
-        
+        $converter = new HtmlConverter();
         $project = $this->projectModel->getById($data['project_id']);
         $emails = array();
         
@@ -113,6 +115,13 @@ class ConvertEmailToTask extends Base
         	$subject = $email->subject;
         	$message_id = $email->messageId;
         	$date = $email->date;
+        	
+        	if($email->textHtml) {
+        	    $email->embedImageAttachments();
+        		$message = $converter->convert($email->textHtml);
+        	} else {
+        		$message = $email->textPlain;
+        	}
         	$message = $email->textPlain;
         	
         	
@@ -126,27 +135,46 @@ class ConvertEmailToTask extends Base
                 
                 if (!$this->userModel->getByEmail($from_email)) { $connect_to_user = null; } else { $connect_to_user = $this->userModel->getByEmail($from_email); }
                 
-                $task_id = $this->taskCreationModel->create(array(
-                    'project_id' => $project_id,
-                    'title' => $subject,
-                    'description' => isset($message) ? $message : '',
-                    'creator_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
-                    'column_id' => $this->getParam('column_id'),
-                    'color_id' => $this->getParam('color_id'),
-                ));
+                $userMembers = $this->projectUserRoleModel->getUsers($data['project_id']);
+                $groupMembers = $this->projectGroupRoleModel->getUsers($data['project_id']);
+                $project_users = array_merge($userMembers, $groupMembers);
+                $user_in_project = false;
+
+                foreach ($project_users as $user) { 
+                    if ($user['id'] = $connect_to_user['id']) {
+                        $user_in_project = true;
+                        break;
+                    }
+                }
+                if ($user_in_project) {
+                    $task_id = $this->taskCreationModel->create(array(
+                        'project_id' => $project_id,
+                        'title' => $subject,
+                        'description' => isset($message) ? $message : '',
+                        'column_id' => $this->getParam('column_id'),
+                        'color_id' => $this->getParam('color_id'),
+                    ));
+                    
+                    $values = array(
+                        'id' => $task_id,
+                        'creator_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
+                        );
+                    
+                    $this->taskModificationModel->update($values,false);
                 
-                if(!empty($email->getAttachments())) {
-                		$attachments = $email->getAttachments();
-                		foreach ($attachments as $attachment) {
-                		    if (!file_exists(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id)) { mkdir(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id, 0755, true); }
-                            $tmp_name = DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name;
-                            $attachment->setFilePath($tmp_name);
-                            if (!file_exists($tmp_name)) { $attachment->saveToDisk(); }
-                            $file = file_get_contents($tmp_name);
-                            $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
-                            unlink($tmp_name);
-                		}
-                	} 
+                    if(!empty($email->getAttachments())) {
+                    		$attachments = $email->getAttachments();
+                    		foreach ($attachments as $attachment) {
+                    		    if (!file_exists(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id)) { mkdir(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id, 0755, true); }
+                                $tmp_name = DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name;
+                                $attachment->setFilePath($tmp_name);
+                                if (!file_exists($tmp_name)) { $attachment->saveToDisk(); }
+                                $file = file_get_contents($tmp_name);
+                                $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
+                                unlink($tmp_name);
+                    		}
+                    	} 
+                }
                 
                 $mailbox->markMailAsRead($mail_id);
                 
