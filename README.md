@@ -40,6 +40,13 @@ In order to setup automatic conversions of email, you will need to add the Actio
 
 https://github.com/barbushin/php-imap#requirements
 
+If you are using the docker containter of Kanboard, simply remote into it and:
+```
+apk update
+apk add php-imap
+apk add php81-fileinfo
+```
+
 # Install
 
 ## Automatically
