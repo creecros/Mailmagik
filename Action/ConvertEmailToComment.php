@@ -16,7 +16,7 @@ use League\HTMLToMarkdown\HtmlConverter;
 
 
 /**
- * Email a task notification of impending due date 
+ * Action to convert email to a comment
  */
 class ConvertEmailToComment extends Base
 {
@@ -87,7 +87,6 @@ class ConvertEmailToComment extends Base
         try {
         	// Search in mailbox folder for specific emails
         	// PHP.net imap_search criteria: http://php.net/manual/en/function.imap-search.php
-        	// Here, we search for "all" emails
         	$mails_ids = $mailbox->searchMailbox('UNSEEN');
         } catch(PhpImap\Exceptions\ConnectionException $ex) {
         	die();
@@ -159,8 +158,8 @@ class ConvertEmailToComment extends Base
                     
                     $this->commentModel->create($values);
                 }
-
-                $mailbox->markMailAsRead($mail_id);
+                
+                if ($this->configModel->get('kbphpimap_pref', '2') = 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
                 
             }
 
