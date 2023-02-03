@@ -102,6 +102,7 @@ class EmailViewController extends BaseController
                 );
             }
 
+            $mailbox->markMailAsRead($mail_id);
         }
         
         $emails = array_reverse($emails);
