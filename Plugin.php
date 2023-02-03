@@ -10,11 +10,11 @@ use Kanboard\Plugin\Kbphpimap\Action\ConvertEmailToComment;
 class Plugin extends Base
 
 {
-	public function initialize()
-	{
+    public function initialize()
+    {
         if (!file_exists(DATA_DIR . '/files/kbphpimap/files')) { mkdir(DATA_DIR . '/files/kbphpimap/files', 0755, true); }
 
-	    // Hooks
+        // Hooks
         $this->template->hook->attach('template:task:sidebar:information', 'kbphpimap:task/emails');
         
         //CONFIG HOOK
@@ -22,35 +22,35 @@ class Plugin extends Base
         
         //css
         $this->hook->on('template:layout:css', array('template' => 'plugins/Kbphpimap/Assets/css/kbphpimap.css'));
-		
-		//ACTIONS
-		$this->actionManager->register(new ConvertEmailToTask($this->container));
-		$this->actionManager->register(new ConvertEmailToComment($this->container));
+        
+        //ACTIONS
+        $this->actionManager->register(new ConvertEmailToTask($this->container));
+        $this->actionManager->register(new ConvertEmailToComment($this->container));
 
-	}
-	
-	public function getPluginName()	
-	{ 		 
-		return 'Kbphpimap'; 
-	}
+    }
+    
+    public function getPluginName()	
+    { 		 
+        return 'Kbphpimap'; 
+    }
 
-	public function getPluginAuthor() 
-	{ 	 
-		return 'Craig Crosby'; 
-	}
+    public function getPluginAuthor() 
+    { 	 
+        return 'Craig Crosby'; 
+    }
 
-	public function getPluginVersion() 
-	{ 	 
-		return '1.1.0'; 
-	}
+    public function getPluginVersion() 
+    { 	 
+        return '1.1.0'; 
+    }
 
-	public function getPluginDescription() 
-	{ 
-		return 'handle emails'; 
-	}
+    public function getPluginDescription() 
+    { 
+        return 'handle emails'; 
+    }
 
-	public function getPluginHomepage() 
-	{ 	 
-		return 'https://github.com/creecros/kbphpimap'; 
-	}
+    public function getPluginHomepage() 
+    { 	 
+        return 'https://github.com/creecros/kbphpimap'; 
+    }
 }
