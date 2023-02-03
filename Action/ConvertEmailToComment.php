@@ -12,6 +12,8 @@ use Kanboard\Model\CommentModel;
 use PhpImap;
 use Kanboard\Model\TaskModel;
 use Kanboard\Action\Base;
+use League\HTMLToMarkdown\HtmlConverter;
+
 
 /**
  * Email a task notification of impending due date 
@@ -76,7 +78,7 @@ class ConvertEmailToComment extends Base
     public function doAction(array $data)
     {
 
-        
+        $converter = new HtmlConverter();
         $project = $this->projectModel->getById($data['project_id']);
         $emails = array();
         
@@ -112,6 +114,13 @@ class ConvertEmailToComment extends Base
         	$subject = $email->subject;
         	$message_id = $email->messageId;
         	$date = $email->date;
+        	
+        	if($email->textHtml) {
+        	    $email->embedImageAttachments();
+        		$message = $converter->convert($email->textHtml);
+        	} else {
+        		$message = $email->textPlain;
+        	}
         	$message = $email->textPlain;
         	
         	
