@@ -47,6 +47,20 @@ apk add php-imap
 apk add php81-fileinfo
 ```
 
+**PHP 7.4**
+Check:
+```
+php -m | grep -i imap
+```
+
+```
+$ sudo apt-get install php-imap
+$ sudo apt-get install php7.4-imap
+$ sudo apt-get install -y php-fileinfo
+```
+Run both commands
+
+
 # Install
 
 ## Automatically
