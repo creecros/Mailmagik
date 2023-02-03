@@ -177,7 +177,7 @@ class ConvertEmailToTask extends Base
                 
                 $option = $this->configModel->get('kbphpimap_pref', '2');
                 
-                if ( $option = 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
+                if ( $option == 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
                 
             }
 
