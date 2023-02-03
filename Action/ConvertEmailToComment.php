@@ -7,6 +7,8 @@ require __DIR__.'/../vendor/autoload.php';
 use Kanboard\Controller\BaseController;
 use Kanboard\Model\UserModel;
 use Kanboard\Model\ProjectModel;
+use Kanboard\Model\ProjectUserRoleModel;
+use Kanboard\Model\CommentModel;
 use PhpImap;
 use Kanboard\Model\TaskModel;
 use Kanboard\Action\Base;
@@ -127,15 +129,28 @@ class ConvertEmailToComment extends Base
                 
                 if (!$this->userModel->getByEmail($from_email)) { $connect_to_user = null; } else { $connect_to_user = $this->userModel->getByEmail($from_email); }
                 
-                $values = array(
-                    'task_id' => $task_id,
-                    'comment' => isset($message) ? $message : '',
-                    'user_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
+                $userMembers = $this->projectUserRoleModel->getUsers($data['project_id']);
+                $groupMembers = $this->projectGroupRoleModel->getUsers($data['project_id']);
+                $project_users = array_merge($userMembers, $groupMembers);
+                $user_in_project = false;
 
-                );
-                
-                $this->commentModel->create($values);
-                
+                foreach ($project_users as $user) { 
+                    if ($user['id'] = $connect_to_user['id']) {
+                        $user_in_project = true;
+                        break;
+                    }
+                }
+                if ($user_in_project) {
+                    $values = array(
+                        'task_id' => $task_id,
+                        'comment' => isset($message) ? $message : '',
+                        'user_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
+    
+                    );
+                    
+                    $this->commentModel->create($values);
+                }
+
                 $mailbox->markMailAsRead($mail_id);
                 
             }
