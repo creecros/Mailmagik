@@ -159,7 +159,9 @@ class ConvertEmailToComment extends Base
                     $this->commentModel->create($values);
                 }
                 
-                if ($this->configModel->get('kbphpimap_pref', '2') = 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
+                $option = $this->configModel->get('kbphpimap_pref', '2');
+                
+                if ( $option = 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
                 
             }
 
