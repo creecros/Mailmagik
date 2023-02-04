@@ -12,9 +12,9 @@
             <?= $this->form->label(t('Password'), 'kbphpimap_password') ?>
             <?= $this->form->password('kbphpimap_password', $values, $errors) ?>
 
-            <?= $this->form->radio('kbphpimap_pref', t('Delete emails after processing automatically') , 1, isset($values['kbphpimap_pref'])&& $values['kbphpimap_pref']==1) ?>
-            <?= $this->form->radio('kbphpimap_pref', t('Mark emails as seen after processing automatically') , 2, isset($values['kbphpimap_pref'])&& $values['kbphpimap_pref']==2) ?>
-            
+            <?= $this->form->radio('kbphpimap_pref', t('Delete emails after processing automatically'), 1, isset($values['kbphpimap_pref']) && $values['kbphpimap_pref'] == 1) ?>
+            <?= $this->form->radio('kbphpimap_pref', t('Mark emails as seen after processing automatically'), 2, (isset($values['kbphpimap_pref']) && $values['kbphpimap_pref'] == 2) || true) ?>
+
             <?= $this->form->radio('kbphpimap_taskemail_pref', t('Enable Task Email Feature') , 1, isset($values['kbphpimap_taskemail_pref'])&& $values['kbphpimap_taskemail_pref']==1) ?>
             <?= $this->form->radio('kbphpimap_taskemail_pref', t('Disable Task Email Feature') , 2, isset($values['kbphpimap_taskemail_pref'])&& $values['kbphpimap_taskemail_pref']==2) ?>            
             <br>
