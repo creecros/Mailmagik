@@ -14,6 +14,9 @@
 
             <?= $this->form->radio('kbphpimap_pref', t('Delete emails after processing automatically') , 1, isset($values['kbphpimap_pref'])&& $values['kbphpimap_pref']==1) ?>
             <?= $this->form->radio('kbphpimap_pref', t('Mark emails as seen after processing automatically') , 2, isset($values['kbphpimap_pref'])&& $values['kbphpimap_pref']==2) ?>
+            
+            <?= $this->form->radio('kbphpimap_taskemail_pref', t('Enable Task Email Feature') , 1, isset($values['kbphpimap_taskemail_pref'])&& $values['kbphpimap_taskemail_pref']==1) ?>
+            <?= $this->form->radio('kbphpimap_taskemail_pref', t('Disable Task Email Feature') , 2, isset($values['kbphpimap_taskemail_pref'])&& $values['kbphpimap_taskemail_pref']==2) ?>            
             <br>
             <p class="form-help"><?= t('To automatically convert emails to tasks or comment, you will need to add the Automatic Actions to each project you wish for it to work in.') ?></p>
             <p class="form-help"><?= t('Example of sending an email directly to a task: ') ?> <a href="mailto:Task#1<myimapemail@email.com>"><?= t('Task#1<myimapemail@email.com>') ?></a></p>

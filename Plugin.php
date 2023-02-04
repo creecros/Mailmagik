@@ -15,7 +15,9 @@ class Plugin extends Base
         if (!file_exists(DATA_DIR . '/files/kbphpimap/files')) { mkdir(DATA_DIR . '/files/kbphpimap/files', 0755, true); }
 
         // Hooks
-        $this->template->hook->attach('template:task:sidebar:information', 'kbphpimap:task/emails');
+        $option = $this->configModel->get('kbphpimap_taskemail_pref', '1');
+        if ( $option == 1) { $this->template->hook->attach('template:task:sidebar:information', 'kbphpimap:task/emails'); } 
+        
         
         //CONFIG HOOK
         $this->template->hook->attach('template:config:email', 'kbphpimap:config/config');
