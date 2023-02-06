@@ -149,11 +149,11 @@ class ConvertEmailToComment extends Base
                     }
                 }
                 if ($user_in_project) {
+                    $comment = (isset($subject) ? "#$subject\n\n" : '') . (isset($message) ? $message : '');
                     $values = array(
                         'task_id' => $task_id,
-                        'comment' => isset($message) ? $message : '',
+                        'comment' => $comment,
                         'user_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
-    
                     );
                     
                     $this->commentModel->create($values);
