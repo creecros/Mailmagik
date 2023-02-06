@@ -14,6 +14,11 @@ class Plugin extends Base
     {
         if (!file_exists(DATA_DIR . '/files/kbphpimap/files')) { mkdir(DATA_DIR . '/files/kbphpimap/files', 0755, true); }
 
+        $this->initConfig(array(
+            'kbphpimap_taskemail_pref' => '1',
+            'kbphpimap_pref' => '2',
+        ));
+
         // Hooks
         $option = $this->configModel->get('kbphpimap_taskemail_pref', '1');
         if ( $option == 1) { $this->template->hook->attach('template:task:sidebar:information', 'kbphpimap:task/emails'); } 
@@ -55,4 +60,22 @@ class Plugin extends Base
     { 	 
         return 'https://github.com/creecros/kbphpimap'; 
     }
+
+    private function initConfig(array $configs)
+    {
+        $values = array();
+
+        foreach ($configs as $name => $value) {
+            if ($this->configModel->get($name) == '')
+            {
+                $values += array($name => $value);
+            }
+        }
+
+        if(!empty($values))
+        {
+            $this->configModel->save($values);
+        }
+    }
+
 }
