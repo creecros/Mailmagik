@@ -16,6 +16,7 @@
             <?php endif ?>
             <span style="font-style: italic"><?= $this->dt->datetime(strtotime($email['date'])) ?></span>
             <span style="float: right"><?= $this->url->icon('trash', '', 'EmailViewController', 'delete', array('plugin' => 'kbphpimap', 'mail_id' => $email['mail_id'], 'task_id' => $email['task_id'])) ?></span>
+            <span style="float: right"><?= $this->url->icon('tasks', '', 'EmailViewController', 'convert', array('plugin' => 'kbphpimap', 'mail_id' => $email['mail_id'], 'task_id' => $email['task_id'])) ?></span>
             <br>
             <strong><?= $email['from_name'] . ' &lt;' . $email['from_email'] . '&gt;' ?></strong>
             <br>

@@ -7,7 +7,16 @@ require __DIR__.'/../vendor/autoload.php';
 use Kanboard\Controller\BaseController;
 use Kanboard\Model\UserModel;
 use Kanboard\Model\ProjectModel;
+use Kanboard\Model\TaskFinderModel;
+use Kanboard\Model\CommentModel;
+use Kanboard\Model\TaskFileModel;
+use Kanboard\Model\TaskLinkModel;
+use Kanboard\Model\LinkModel;
+use Kanboard\Model\TaskExternalLinkModel;
+use Kanboard\Model\TaskTagModel;
+use Kanboard\Model\UserMetadataModel;
 use PhpImap;
+use League\HTMLToMarkdown\HtmlConverter;
 
 
 /**
@@ -176,6 +185,97 @@ class EmailViewController extends BaseController
         $this->view($task_id);
         
     }
+    
+    /**
+     * Convert Task Email to Task Butoon
+     *
+     * @access public
+     */
+    public function convert()
+    {
+        $converter = new HtmlConverter();
+        $mail_id =  $this->request->getIntegerParam('mail_id');
+        $task_id =  $this->request->getIntegerParam('task_id');
+        $task = $this->getTask(); 
+
+        $mailbox = $this->login();
+        $email = $mailbox->getMail(
+        	$mail_id, 
+        	false 
+        );
+        	
+        $subject = $email->subject;
+        $message_id = $email->messageId;
+        $date = $email->date;
+        	
+        if($email->textHtml) {
+        	$email->embedImageAttachments();
+            $message = $converter->convert($email->textHtml);
+        } else {
+        	$message = $email->textPlain;
+        }
+        $message = $email->textPlain;
+        	
+        	
+        if($email->hasAttachments()) {
+            		$has_attach = 'y';
+            	} else {
+            		$has_attach = 'n';
+            	}
+            
+
+        $task_id = $this->taskCreationModel->create(array(
+            'project_id' => $task['project_id'],
+            'title' => $subject,
+            'description' => isset($message) ? $message : '',
+        ));
+                    
+        if(!empty($email->getAttachments())) {
+                $attachments = $email->getAttachments();
+                foreach ($attachments as $attachment) {
+                    if (!file_exists(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id)) { mkdir(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id, 0755, true); }
+                    $tmp_name = DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name;
+                    $attachment->setFilePath($tmp_name);
+                    if (!file_exists($tmp_name)) { $attachment->saveToDisk(); }
+                    $file = file_get_contents($tmp_name);
+                    $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
+                    unlink($tmp_name);
+                }
+        } 
+                
+                
+        $option = $this->configModel->get('kbphpimap_pref', '2');
+                
+        if ( $option == 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
+     
+        $this->show($task_id);
+    }
+
+        
+    /**
+     * Show a task
+     *
+     * @access public
+     */
+    public function show($task_id)
+    {
+        $task = $this->taskFinderModel->getDetails($task_id);
+        $subtasks = $this->subtaskModel->getAll($task['id']);
+        $commentSortingDirection = $this->userMetadataCacheDecorator->get(UserMetadataModel::KEY_COMMENT_SORTING_DIRECTION, 'ASC');
+
+        $this->response->html($this->helper->layout->task('task/show', array(
+            'task' => $task,
+            'project' => $this->projectModel->getById($task['project_id']),
+            'files' => $this->taskFileModel->getAllDocuments($task['id']),
+            'images' => $this->taskFileModel->getAllImages($task['id']),
+            'comments' => $this->commentModel->getAll($task['id'], $commentSortingDirection),
+            'subtasks' => $subtasks,
+            'internal_links' => $this->taskLinkModel->getAllGroupedByLabel($task['id']),
+            'external_links' => $this->taskExternalLinkModel->getAll($task['id']),
+            'link_label_list' => $this->linkModel->getList(0, false),
+            'tags' => $this->taskTagModel->getTagsByTask($task['id']),
+        )));
+    }    
     
     /**
      * Email delete
