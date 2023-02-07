@@ -191,7 +191,7 @@ class EmailViewController extends BaseController
      *
      * @access public
      */
-    public function convert()
+    public function convertToTask()
     {
         $converter = new HtmlConverter();
         $mail_id =  $this->request->getIntegerParam('mail_id');
@@ -249,6 +249,62 @@ class EmailViewController extends BaseController
         if ( $option == 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
      
         $this->show($task_id);
+    }
+    
+    /**
+     * Convert Email To Comment Butoon
+     *
+     * @access public
+     */
+    public function convertToComment()
+    {
+        $converter = new HtmlConverter();
+        $mail_id =  $this->request->getIntegerParam('mail_id');
+        $task_id =  $this->request->getIntegerParam('task_id');
+        $task = $this->getTask(); 
+
+        $mailbox = $this->login();
+        $email = $mailbox->getMail(
+        	$mail_id, 
+        	false 
+        );
+        	
+        $subject = $email->subject;
+        $message_id = $email->messageId;
+        $date = $email->date;
+        	
+        if($email->textHtml) {
+        	$email->embedImageAttachments();
+            $message = $converter->convert($email->textHtml);
+        } else {
+        	$message = $email->textPlain;
+        }
+        $message = $email->textPlain;
+        	
+        	
+        if($email->hasAttachments()) {
+            		$has_attach = 'y';
+            	} else {
+            		$has_attach = 'n';
+            	}
+            
+        $comment = (isset($subject) ? "#$subject\n\n" : '') . (isset($message) ? $message : '');
+        $values = array(
+            'task_id' => $task_id,
+            'comment' => $comment,
+            'user_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
+        );
+
+                    
+        $comment_id = $this->commentModel->create($values); 
+                
+                
+        $option = $this->configModel->get('kbphpimap_pref', '2');
+                
+        if ( $option == 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
+     
+        $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id), false, '', '', $this->request->isAjax(), 'comment-'.$comment_id));
+
     }
 
         
