@@ -1,2 +1,2 @@
 <div class="loader" id="loader"></div>
-<h1>Scanning mailbox...</h1>
+<h1><?= t('Scanning mailbox...') ?></h1>
