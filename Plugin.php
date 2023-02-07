@@ -29,6 +29,7 @@ class Plugin extends Base
         
         //css
         $this->hook->on('template:layout:css', array('template' => 'plugins/Kbphpimap/Assets/css/kbphpimap.css'));
+        $this->hook->on('template:layout:js', array('template' => 'plugins/Kbphpimap/Assets/js/kbphpimap.js'));
         
         //ACTIONS
         $this->actionManager->register(new ConvertEmailToTask($this->container));

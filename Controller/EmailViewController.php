@@ -19,6 +19,17 @@ class EmailViewController extends BaseController
 {
     const PREFIX = 'Task#';
     const FILES_DIR = '/files/kbphpimap/files/';
+    
+    public function load()
+    {
+        $task = $this->getTask();
+        $this->response->html($this->helper->layout->task('kbphpimap:task_emails/task_load', array(
+            'task' => $task,
+            'project' => $this->projectModel->getById($task['project_id']),
+            'title'   => $task['title'],
+            'tags'    => $this->taskTagModel->getTagsByTask($task['id']),
+        )));
+    }
 
     public function view()
     {

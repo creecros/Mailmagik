@@ -1,4 +1,3 @@
-  
 <?= $this->render('task/details', array(
     'task' => $task,
     'tags' => $tags,
