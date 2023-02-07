@@ -17,6 +17,8 @@ use PhpImap;
  */
 class EmailViewController extends BaseController
 {
+    const PREFIX = 'Task#';
+    const FILES_DIR = '/files/kbphpimap/files/';
 
     public function view()
     {
@@ -29,7 +31,7 @@ class EmailViewController extends BaseController
         	// Search in mailbox folder for specific emails
         	// PHP.net imap_search criteria: http://php.net/manual/en/function.imap-search.php
         	// Here, we search for "all" emails
-        	$mails_ids = $mailbox->searchMailbox('ALL');
+        	$mails_ids = $mailbox->searchMailbox('TO ' . self::PREFIX);
         } catch(PhpImap\Exceptions\ConnectionException $ex) {
         	die();
         }
@@ -48,7 +50,7 @@ class EmailViewController extends BaseController
         	$from_email = $email->fromAddress;
         	foreach($email->to as $to){
         	    if ($i === 0 && $to != null) {
-            	    (strpos($to, 'Task#') == 0) ? $task_id = trim(str_replace('Task#', '', $to), ' ') : $task_id = null;
+            	    (strpos($to, self::PREFIX) == 0) ? $task_id = trim(str_replace(self::PREFIX, '', $to), ' ') : $task_id = null;
         	    }
         	    $i++;
         	}
@@ -78,9 +80,9 @@ class EmailViewController extends BaseController
                 		$attachments = $email->getAttachments();
                 		foreach ($attachments as $attachment) {
                 		    $attached_files[] = $attachment->name;
-                		    if (!file_exists(DATA_DIR . '/files/kbphpimap/files/' . $task['id'])) { mkdir(DATA_DIR . '/files/kbphpimap/files/' . $task['id'], 0755, true); }
-                            $attachment->setFilePath(DATA_DIR . '/files/kbphpimap/files/' . $task['id'] . '/' . $attachment->name);
-                            if (!file_exists(DATA_DIR . '/files/kbphpimap/files/' . $task['id'] . '/' . $attachment->name)) { $attachment->saveToDisk(); }
+                		    if (!file_exists(DATA_DIR . self::FILES_DIR . $task['id'])) { mkdir(DATA_DIR . self::FILES_DIR . $task['id'], 0755, true); }
+                            $attachment->setFilePath(DATA_DIR . self::FILES_DIR . $task['id'] . '/' . $attachment->name);
+                            if (!file_exists(DATA_DIR . self::FILES_DIR . $task['id'] . '/' . $attachment->name)) { $attachment->saveToDisk(); }
                 		}
                 	} 
 
@@ -128,7 +130,7 @@ class EmailViewController extends BaseController
         $name =  $this->request->getStringParam('name');
 
         try {
-            $file = DATA_DIR . '/files/kbphpimap/files/' . $task_id . '/' . $name;
+            $file = DATA_DIR . self::FILES_DIR . $task_id . '/' . $name;
             if (file_exists($file)) {
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/octet-stream');
