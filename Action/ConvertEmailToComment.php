@@ -4,22 +4,23 @@ namespace Kanboard\Plugin\Kbphpimap\Action;
 
 require __DIR__.'/../vendor/autoload.php';
 
+use Kanboard\Action\Base;
 use Kanboard\Controller\BaseController;
-use Kanboard\Model\UserModel;
+use Kanboard\Model\CommentModel;
 use Kanboard\Model\ProjectModel;
 use Kanboard\Model\ProjectUserRoleModel;
-use Kanboard\Model\CommentModel;
-use PhpImap;
 use Kanboard\Model\TaskModel;
-use Kanboard\Action\Base;
+use Kanboard\Model\UserModel;
 use League\HTMLToMarkdown\HtmlConverter;
-
+use PhpImap;
 
 /**
  * Action to convert email to a comment
  */
 class ConvertEmailToComment extends Base
 {
+    const PREFIX = 'CommentOnTask#';
+
     /**
      * Get automatic action description
      *
@@ -87,7 +88,7 @@ class ConvertEmailToComment extends Base
         try {
         	// Search in mailbox folder for specific emails
         	// PHP.net imap_search criteria: http://php.net/manual/en/function.imap-search.php
-        	$mails_ids = $mailbox->searchMailbox('UNSEEN');
+        	$mails_ids = $mailbox->searchMailbox('UNSEEN TO ' . self::PREFIX);
         } catch(PhpImap\Exceptions\ConnectionException $ex) {
         	die();
         }
@@ -106,7 +107,7 @@ class ConvertEmailToComment extends Base
         	$from_email = $email->fromAddress;
         	foreach($email->to as $to){
         	    if ($i === 0 && $to != null) {
-            	    (strpos($to, 'CommentOnTask#') == 0) ? $task_id = str_replace('CommentOnTask#', '', $to) : $task_id = null;
+            	    (strpos($to, self::PREFIX) == 0) ? $task_id = str_replace(self::PREFIX, '', $to) : $task_id = null;
         	    }
         	    $i++;
         	}

@@ -18,6 +18,8 @@ use League\HTMLToMarkdown\HtmlConverter;
  */
 class ConvertEmailToTask extends Base
 {
+    const PREFIX = 'Project#';
+
     /**
      * Get automatic action description
      *
@@ -88,7 +90,7 @@ class ConvertEmailToTask extends Base
         try {
         	// Search in mailbox folder for specific emails
         	// PHP.net imap_search criteria: http://php.net/manual/en/function.imap-search.php
-        	$mails_ids = $mailbox->searchMailbox('UNSEEN');
+        	$mails_ids = $mailbox->searchMailbox('UNSEEN TO ' . self::PREFIX);
         } catch(PhpImap\Exceptions\ConnectionException $ex) {
         	die();
         }
@@ -107,7 +109,7 @@ class ConvertEmailToTask extends Base
         	$from_email = $email->fromAddress;
         	foreach($email->to as $to){
         	    if ($i === 0 && $to != null) {
-            	    (strpos($to, 'Project#') == 0) ? $project_id = str_replace('Project#', '', $to) : $project_id = null;
+            	    (strpos($to, self::PREFIX) == 0) ? $project_id = str_replace(self::PREFIX, '', $to) : $project_id = null;
         	    }
         	    $i++;
         	}
