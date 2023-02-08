@@ -36,7 +36,7 @@ In order to setup automatic conversions of email, you will need to add the Actio
 
 **Plugin Author:** _[creecros](https://github.com/creecros)_
 
-**Inital Plugin Development Contributions** 
+**Collaborators and Contributors:** 
 - _[alfredbuehler](https://github.com/alfredbuehler)_
 - _[aljawaid](https://github.com/aljawaid)_
 
