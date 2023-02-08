@@ -288,9 +288,14 @@ class EmailViewController extends BaseController
             		$has_attach = 'n';
             	}
             	
-        if (!$this->userModel->getByEmail($from_email)) { $connect_to_user = null; } else { $connect_to_user = $this->userModel->getByEmail($from_email); }
+        if (!$this->userModel->getByEmail($from_email)) { 
+            $connect_to_user = null; 
+            $comment = '*Email converted to comment and originally sent by ' . $from_email . '*' ."\n\n" . (isset($subject) ? "#$subject\n\n" : '') . (isset($message) ? $message : '');
+        } else { 
+            $connect_to_user = $this->userModel->getByEmail($from_email); 
+            $comment = '*Email converted to comment by ' . $user['username']. '*' ."\n\n" . (isset($subject) ? "#$subject\n\n" : '') . (isset($message) ? $message : '');
+        }
         
-        $comment = '*Email converted to comment by ' . $user['username']. '*' ."\n\n" . (isset($subject) ? "#$subject\n\n" : '') . (isset($message) ? $message : '');
         $values = array(
             'task_id' => $task_id,
             'comment' => $comment,
