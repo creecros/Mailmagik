@@ -259,10 +259,10 @@ class EmailViewController extends BaseController
     public function convertToComment()
     {
         $converter = new HtmlConverter();
+        $user = $this->getUser();
         $mail_id =  $this->request->getIntegerParam('mail_id');
         $task_id =  $this->request->getIntegerParam('task_id');
         $task = $this->getTask(); 
-
         $mailbox = $this->login();
         $email = $mailbox->getMail(
         	$mail_id, 
@@ -274,25 +274,27 @@ class EmailViewController extends BaseController
         $date = $email->date;
         	
         if($email->textHtml) {
-        	$email->embedImageAttachments();
+        	//$email->embedImageAttachments();
             $message = $converter->convert($email->textHtml);
         } else {
         	$message = $email->textPlain;
         }
         $message = $email->textPlain;
-        	
+        $from_email = $email->fromAddress;
         	
         if($email->hasAttachments()) {
             		$has_attach = 'y';
             	} else {
             		$has_attach = 'n';
             	}
-            
-        $comment = (isset($subject) ? "#$subject\n\n" : '') . (isset($message) ? $message : '');
+            	
+        if (!$this->userModel->getByEmail($from_email)) { $connect_to_user = null; } else { $connect_to_user = $this->userModel->getByEmail($from_email); }
+        
+        $comment = '*Email converted to comment by ' . $user['username']. '*' ."\n\n" . (isset($subject) ? "#$subject\n\n" : '') . (isset($message) ? $message : '');
         $values = array(
             'task_id' => $task_id,
             'comment' => $comment,
-            'user_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
+            'user_id' => is_null($connect_to_user) ? $user['id'] : $connect_to_user['id'],
         );
 
                     
