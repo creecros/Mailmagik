@@ -309,6 +309,8 @@ class EmailViewController extends BaseController
         $option = $this->configModel->get('kbphpimap_pref', '2');
                 
         if ( $option == 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
+        
+        $task_id = $task_id.'#comment-'.$comment_id;
      
         $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id), false, '', '', $this->request->isAjax(), 'comment-'.$comment_id));
 
