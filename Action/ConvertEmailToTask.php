@@ -12,13 +12,12 @@ use Kanboard\Model\TaskModel;
 use Kanboard\Action\Base;
 use League\HTMLToMarkdown\HtmlConverter;
 
-
 /**
  * Action to convert email to a task
  */
 class ConvertEmailToTask extends Base
 {
-    const PREFIX = 'Project#';
+    public const PREFIX = 'Project#';
 
     /**
      * Get automatic action description
@@ -64,7 +63,6 @@ class ConvertEmailToTask extends Base
     public function getEventRequiredParameters()
     {
         return array('project_id');
-        
     }
     /**
      * Check if the event data meet the action condition
@@ -80,62 +78,63 @@ class ConvertEmailToTask extends Base
 
     public function doAction(array $data)
     {
-
         $converter = new HtmlConverter();
         $project = $this->projectModel->getById($data['project_id']);
         $emails = array();
-        
+
         $mailbox = $this->login();
-        
+
         try {
-        	// Search in mailbox folder for specific emails
-        	// PHP.net imap_search criteria: http://php.net/manual/en/function.imap-search.php
-        	$mails_ids = $mailbox->searchMailbox('UNSEEN TO ' . self::PREFIX);
+            // Search in mailbox folder for specific emails
+            // PHP.net imap_search criteria: http://php.net/manual/en/function.imap-search.php
+            $mails_ids = $mailbox->searchMailbox('UNSEEN TO ' . self::PREFIX);
         } catch(PhpImap\Exceptions\ConnectionException $ex) {
-        	die();
+            die();
         }
-        
-        foreach($mails_ids as $mail_id) {
-            
+
+        foreach ($mails_ids as $mail_id) {
             $i = 0;
 
-        	// Get mail by $mail_id
-        	$email = $mailbox->getMail(
-        		$mail_id, // ID of the email, you want to get
-        		false // Do NOT mark emails as seen
-        	);
-        
-        	$from_name = (isset($email->fromName)) ? $email->fromName : $email->fromAddress;
-        	$from_email = $email->fromAddress;
-        	foreach($email->to as $to){
-        	    if ($i === 0 && $to != null) {
-            	    (strpos($to, self::PREFIX) == 0) ? $project_id = str_replace(self::PREFIX, '', $to) : $project_id = null;
-        	    }
-        	    $i++;
-        	}
-        	$subject = $email->subject;
-        	$message_id = $email->messageId;
-        	$date = $email->date;
-        	
-        	if($email->textHtml) {
-        	    $email->embedImageAttachments();
-        		$message = $converter->convert($email->textHtml);
-        	} else {
-        		$message = $email->textPlain;
-        	}
-        	$message = $email->textPlain;
-        	
-        	
-            if($email->hasAttachments()) {
-            		$has_attach = 'y';
-            	} else {
-            		$has_attach = 'n';
-            	}
-            
+            // Get mail by $mail_id
+            $email = $mailbox->getMail(
+                $mail_id, // ID of the email, you want to get
+                false // Do NOT mark emails as seen
+            );
+
+            $from_name = (isset($email->fromName)) ? $email->fromName : $email->fromAddress;
+            $from_email = $email->fromAddress;
+            foreach ($email->to as $to) {
+                if ($i === 0 && $to != null) {
+                    (strpos($to, self::PREFIX) == 0) ? $project_id = str_replace(self::PREFIX, '', $to) : $project_id = null;
+                }
+                $i++;
+            }
+            $subject = $email->subject;
+            $message_id = $email->messageId;
+            $date = $email->date;
+
+            if ($email->textHtml) {
+                $email->embedImageAttachments();
+                $message = $converter->convert($email->textHtml);
+            } else {
+                $message = $email->textPlain;
+            }
+            $message = $email->textPlain;
+
+
+            if ($email->hasAttachments()) {
+                $has_attach = 'y';
+            } else {
+                $has_attach = 'n';
+            }
+
             if (!is_null($project_id) && intval($project_id) === intval($project['id'])) {
-                
-                if (!$this->userModel->getByEmail($from_email)) { $connect_to_user = null; } else { $connect_to_user = $this->userModel->getByEmail($from_email); }
-                
+                if (!$this->userModel->getByEmail($from_email)) {
+                    $connect_to_user = null;
+                } else {
+                    $connect_to_user = $this->userModel->getByEmail($from_email);
+                }
+
                 $userMembers = $this->projectUserRoleModel->getUsers($data['project_id']);
                 $groupMembers = $this->projectGroupRoleModel->getUsers($data['project_id']);
                 $project_users = array_merge($userMembers, $groupMembers);
@@ -155,7 +154,7 @@ class ConvertEmailToTask extends Base
                         'column_id' => $this->getParam('column_id'),
                         'color_id' => $this->getParam('color_id'),
                     ));
-                    
+
                     $values = array(
                         'id' => $task_id,
                         'creator_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
@@ -165,51 +164,52 @@ class ConvertEmailToTask extends Base
 
                     $values = array_merge($values, $this->scanSubject($subject, $project_id));
 
-                    $this->taskModificationModel->update($values,false);
-                
-                    if(!empty($email->getAttachments())) {
-                    		$attachments = $email->getAttachments();
-                    		foreach ($attachments as $attachment) {
-                    		    if (!file_exists(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id)) { mkdir(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id, 0755, true); }
-                                $tmp_name = DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name;
-                                $attachment->setFilePath($tmp_name);
-                                if (!file_exists($tmp_name)) { $attachment->saveToDisk(); }
-                                $file = file_get_contents($tmp_name);
-                                $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
-                                unlink($tmp_name);
-                    		}
-                    	} 
-                }
-                
-                $option = $this->configModel->get('kbphpimap_pref', '2');
-                
-                if ( $option == 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
-                
-            }
+                    $this->taskModificationModel->update($values, false);
 
+                    if (!empty($email->getAttachments())) {
+                        $attachments = $email->getAttachments();
+                        foreach ($attachments as $attachment) {
+                            if (!file_exists(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id)) {
+                                mkdir(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id, 0755, true);
+                            }
+                            $tmp_name = DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name;
+                            $attachment->setFilePath($tmp_name);
+                            if (!file_exists($tmp_name)) {
+                                $attachment->saveToDisk();
+                            }
+                            $file = file_get_contents($tmp_name);
+                            $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
+                            unlink($tmp_name);
+                        }
+                    }
+                }
+
+                $option = $this->configModel->get('kbphpimap_pref', '2');
+
+                if ($option == 2) {
+                    $mailbox->markMailAsRead($mail_id);
+                } else {
+                    $mailbox->deleteMail($mail_id);
+                }
+            }
         }
-        
-        
-        
     }
-    
+
     public function login()
     {
-
         $server = $this->configModel->get('kbphpimap_server', '');
         $port = $this->configModel->get('kbphpimap_port', '');
         $user = $this->configModel->get('kbphpimap_user', '');
         $password = $this->configModel->get('kbphpimap_password', '');
 
         $mailbox = new PhpImap\Mailbox(
-        	'{'.$server.':' . $port . '/imap/ssl}INBOX', 
-        	$user, 
-        	$password, 
-        	false
+            '{'.$server.':' . $port . '/imap/ssl}INBOX',
+            $user,
+            $password,
+            false
         );
-    
-        return $mailbox;
 
+        return $mailbox;
     }
 
     /**
@@ -219,52 +219,45 @@ class ConvertEmailToTask extends Base
      * @param   stting  project_id
      * @return  array   extracted attributes
      */
-    private function scanSubject(string &$subject, string $project_id) : array
+    private function scanSubject(string &$subject, string $project_id): array
     {
         $attributes = array();
 
-        $date_due = $date_started = $priority = NULL;
+        $date_due = $date_started = $priority = null;
 
         // Start- and due date
 
-        if (($date_due = $this->extractDate($subject, 'd')) != NULL)
-        {
+        if (($date_due = $this->extractDate($subject, 'd')) != null) {
             $attributes = array_merge($attributes, array('date_due' => $date_due));
         }
 
-        if (($date_started = $this->extractDate($subject, 's')) != NULL)
-        {
+        if (($date_started = $this->extractDate($subject, 's')) != null) {
             $attributes = array_merge($attributes, array('date_started' => $date_started));
         }
 
         // Priority
 
-        if (($priority = $this->extractPriority($subject)) != NULL)
-        {
+        if (($priority = $this->extractPriority($subject)) != null) {
             $attributes = array_merge($attributes, array('priority' => intval($priority)));
         }
 
         // Category
 
-        if (($category_name = $this->extractCategory($subject)) != NULL)
-        {
-            if (($category_id = $this->categoryModel->getIdByName($project_id, $category_name)) > 0)
-            {
+        if (($category_name = $this->extractCategory($subject)) != null) {
+            if (($category_id = $this->categoryModel->getIdByName($project_id, $category_name)) > 0) {
                 $attributes = array_merge($attributes, array('category_id' => $category_id));
             }
         }
 
         // Tags
 
-        if (count($tags= $this->extractTags($subject)) > 0 )
-        {
+        if (count($tags= $this->extractTags($subject)) > 0) {
             $attributes = array_merge($attributes, array('tags' => $tags));
         }
 
         // Subject was probably modified, due to attribute stuff removal.
 
-        if (count($attributes) > 0)
-        {
+        if (count($attributes) > 0) {
             $attributes = array_merge($attributes, array('title' => trim($subject, ' ')));
         }
 
@@ -283,7 +276,7 @@ class ConvertEmailToTask extends Base
     {
         $date = $this->extractAttribute($subject, $prefix, '\d{4}-\d{2}-\d{2}');
 
-        return date_create($date) ? $date : NULL;
+        return date_create($date) ? $date : null;
     }
 
     /**
@@ -321,8 +314,7 @@ class ConvertEmailToTask extends Base
     {
         $tags = array();
 
-        while (($tag = $this->extractAttribute($subject, 't')) != NULL)
-        {
+        while (($tag = $this->extractAttribute($subject, 't')) != null) {
             array_push($tags, $tag);
         }
 
@@ -345,15 +337,13 @@ class ConvertEmailToTask extends Base
      */
     private function extractAttribute(&$subject, $prefix, $pattern = '\w{1,}')
     {
-        $attribute = NULL;
+        $attribute = null;
 
-        if (($pos = strpos($subject, "$prefix:")) && $pos >= 0)
-        {
+        if (($pos = strpos($subject, "$prefix:")) && $pos >= 0) {
             sscanf(substr($subject, $pos), "$prefix:%s", $attribute);
             $subject = trim(preg_filter("/$prefix:$pattern/", '', $subject, 1), ' ');
         }
 
         return $attribute;
     }
-
 }

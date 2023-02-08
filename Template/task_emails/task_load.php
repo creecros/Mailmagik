@@ -6,7 +6,7 @@
 )) ?>
 
 <div class="page-header">
-    <h2><?= t('Task Email: Task#') . $task['id'] . ' &lt;' . $this->task->configModel->get('kbphpimap_user','') . '&gt;' ?></h2>
+    <h2><?= t('Task Email: Task#') . $task['id'] . ' &lt;' . $this->task->configModel->get('kbphpimap_user', '') . '&gt;' ?></h2>
 </div>
 
 <?= $this->render('kbphpimap:task_emails/load', array()) ?>

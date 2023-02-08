@@ -5,12 +5,12 @@
         <div class="email-event">
             <?php if (!is_null($email['user'])): ?>
                 <?= $this->avatar->render(
-                $email['user']['id'],
-                $email['user']['username'],
-                $email['user']['name'],
-                $email['user']['email'],
-                $email['user']['avatar_path']
-                ) ?>
+    $email['user']['id'],
+    $email['user']['username'],
+    $email['user']['name'],
+    $email['user']['email'],
+    $email['user']['avatar_path']
+) ?>
             <?php else: ?>
                 <div class="avatar avatar-48 avatar-left"><div class="avatar-letter" style="background-color: #5d5d5d" title="test" role="img" aria-label="test">?</div></div>
             <?php endif ?>

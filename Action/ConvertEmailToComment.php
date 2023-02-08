@@ -19,7 +19,7 @@ use PhpImap;
  */
 class ConvertEmailToComment extends Base
 {
-    const PREFIX = 'CommentOnTask#';
+    public const PREFIX = 'CommentOnTask#';
 
     /**
      * Get automatic action description
@@ -62,7 +62,6 @@ class ConvertEmailToComment extends Base
     public function getEventRequiredParameters()
     {
         return array('project_id');
-        
     }
     /**
      * Check if the event data meet the action condition
@@ -78,72 +77,73 @@ class ConvertEmailToComment extends Base
 
     public function doAction(array $data)
     {
-
         $converter = new HtmlConverter();
         $project = $this->projectModel->getById($data['project_id']);
         $emails = array();
-        
+
         $mailbox = $this->login();
-        
+
         try {
-        	// Search in mailbox folder for specific emails
-        	// PHP.net imap_search criteria: http://php.net/manual/en/function.imap-search.php
-        	$mails_ids = $mailbox->searchMailbox('UNSEEN TO ' . self::PREFIX);
+            // Search in mailbox folder for specific emails
+            // PHP.net imap_search criteria: http://php.net/manual/en/function.imap-search.php
+            $mails_ids = $mailbox->searchMailbox('UNSEEN TO ' . self::PREFIX);
         } catch(PhpImap\Exceptions\ConnectionException $ex) {
-        	die();
+            die();
         }
-        
-        foreach($mails_ids as $mail_id) {
-            
+
+        foreach ($mails_ids as $mail_id) {
             $i = 0;
 
-        	// Get mail by $mail_id
-        	$email = $mailbox->getMail(
-        		$mail_id, // ID of the email, you want to get
-        		false // Do NOT mark emails as seen
-        	);
-        
-        	$from_name = (isset($email->fromName)) ? $email->fromName : $email->fromAddress;
-        	$from_email = $email->fromAddress;
-        	foreach($email->to as $to){
-        	    if ($i === 0 && $to != null) {
-            	    (strpos($to, self::PREFIX) == 0) ? $task_id = str_replace(self::PREFIX, '', $to) : $task_id = null;
-        	    }
-        	    $i++;
-        	}
-        	$subject = $email->subject;
-        	$message_id = $email->messageId;
-        	$date = $email->date;
-        	
-        	if($email->textHtml) {
-        	    $email->embedImageAttachments();
-        		$message = $converter->convert($email->textHtml);
-        	} else {
-        		$message = $email->textPlain;
-        	}
-        	$message = $email->textPlain;
-        	
-        	
-            if($email->hasAttachments()) {
-            		$has_attach = 'y';
-            	} else {
-            		$has_attach = 'n';
-            	}
-            	
+            // Get mail by $mail_id
+            $email = $mailbox->getMail(
+                $mail_id, // ID of the email, you want to get
+                false // Do NOT mark emails as seen
+            );
+
+            $from_name = (isset($email->fromName)) ? $email->fromName : $email->fromAddress;
+            $from_email = $email->fromAddress;
+            foreach ($email->to as $to) {
+                if ($i === 0 && $to != null) {
+                    (strpos($to, self::PREFIX) == 0) ? $task_id = str_replace(self::PREFIX, '', $to) : $task_id = null;
+                }
+                $i++;
+            }
+            $subject = $email->subject;
+            $message_id = $email->messageId;
+            $date = $email->date;
+
+            if ($email->textHtml) {
+                $email->embedImageAttachments();
+                $message = $converter->convert($email->textHtml);
+            } else {
+                $message = $email->textPlain;
+            }
+            $message = $email->textPlain;
+
+
+            if ($email->hasAttachments()) {
+                $has_attach = 'y';
+            } else {
+                $has_attach = 'n';
+            }
+
             $is_task = $this->taskFinderModel->exists($task_id);
             $project_id = ($is_task) ? $this->taskFinderModel->getProjectId($task_id) : 0;
             $is_in_project = ($project_id = $data['project_id']) ? true : false;
-            
+
             if (!is_null($task_id) && $is_task && $is_in_project) {
-                
-                if (!$this->userModel->getByEmail($from_email)) { $connect_to_user = null; } else { $connect_to_user = $this->userModel->getByEmail($from_email); }
-                
+                if (!$this->userModel->getByEmail($from_email)) {
+                    $connect_to_user = null;
+                } else {
+                    $connect_to_user = $this->userModel->getByEmail($from_email);
+                }
+
                 $userMembers = $this->projectUserRoleModel->getUsers($data['project_id']);
                 $groupMembers = $this->projectGroupRoleModel->getUsers($data['project_id']);
                 $project_users = array_merge($userMembers, $groupMembers);
                 $user_in_project = false;
 
-                foreach ($project_users as $user) { 
+                foreach ($project_users as $user) {
                     if ($user['id'] = $connect_to_user['id']) {
                         $user_in_project = true;
                         break;
@@ -156,39 +156,35 @@ class ConvertEmailToComment extends Base
                         'comment' => $comment,
                         'user_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
                     );
-                    
+
                     $this->commentModel->create($values);
                 }
-                
-                $option = $this->configModel->get('kbphpimap_pref', '2');
-                
-                if ( $option == 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
-                
-            }
 
+                $option = $this->configModel->get('kbphpimap_pref', '2');
+
+                if ($option == 2) {
+                    $mailbox->markMailAsRead($mail_id);
+                } else {
+                    $mailbox->deleteMail($mail_id);
+                }
+            }
         }
-        
-        
-        
     }
-    
+
     public function login()
     {
-
         $server = $this->configModel->get('kbphpimap_server', '');
         $port = $this->configModel->get('kbphpimap_port', '');
         $user = $this->configModel->get('kbphpimap_user', '');
         $password = $this->configModel->get('kbphpimap_password', '');
 
         $mailbox = new PhpImap\Mailbox(
-        	'{'.$server.':' . $port . '/imap/ssl}INBOX', 
-        	$user, 
-        	$password, 
-        	false
+            '{'.$server.':' . $port . '/imap/ssl}INBOX',
+            $user,
+            $password,
+            false
         );
-    
-        return $mailbox;
 
+        return $mailbox;
     }
-      
 }

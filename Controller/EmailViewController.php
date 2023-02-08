@@ -18,7 +18,6 @@ use Kanboard\Model\UserMetadataModel;
 use PhpImap;
 use League\HTMLToMarkdown\HtmlConverter;
 
-
 /**
  * Kbphpimap Plugin
  *
@@ -26,9 +25,9 @@ use League\HTMLToMarkdown\HtmlConverter;
  */
 class EmailViewController extends BaseController
 {
-    const PREFIX = 'Task#';
-    const FILES_DIR = '/files/kbphpimap/files/';
-    
+    public const PREFIX = 'Task#';
+    public const FILES_DIR = '/files/kbphpimap/files/';
+
     public function load()
     {
         $task = $this->getTask();
@@ -42,71 +41,77 @@ class EmailViewController extends BaseController
 
     public function view()
     {
-        $task = $this->getTask(); 
+        $task = $this->getTask();
         $emails = array();
-        
+
         $mailbox = $this->login();
-        
+
         try {
-        	// Search in mailbox folder for specific emails
-        	// PHP.net imap_search criteria: http://php.net/manual/en/function.imap-search.php
-        	// Here, we search for "all" emails
-        	$mails_ids = $mailbox->searchMailbox('TO ' . self::PREFIX);
+            // Search in mailbox folder for specific emails
+            // PHP.net imap_search criteria: http://php.net/manual/en/function.imap-search.php
+            // Here, we search for "all" emails
+            $mails_ids = $mailbox->searchMailbox('TO ' . self::PREFIX);
         } catch(PhpImap\Exceptions\ConnectionException $ex) {
-        	die();
+            die();
         }
-        
-        foreach($mails_ids as $mail_id) {
-            
+
+        foreach ($mails_ids as $mail_id) {
             $i = 0;
 
-        	// Get mail by $mail_id
-        	$email = $mailbox->getMail(
-        		$mail_id, // ID of the email, you want to get
-        		false // Do NOT mark emails as seen
-        	);
-        
-        	$from_name = (isset($email->fromName)) ? $email->fromName : $email->fromAddress;
-        	$from_email = $email->fromAddress;
-        	foreach($email->to as $to){
-        	    if ($i === 0 && $to != null) {
-            	    (strpos($to, self::PREFIX) == 0) ? $task_id = trim(str_replace(self::PREFIX, '', $to), ' ') : $task_id = null;
-        	    }
-        	    $i++;
-        	}
-        	$subject = $email->subject;
-        	$message_id = $email->messageId;
-        	$date = $email->date;
-            
-        	if($email->textHtml) {
-        	    $email->embedImageAttachments();
-        		$message = $email->textHtml;
-        	} else {
-        		$message = $email->textPlain;
-        	}
-        	
-            if($email->hasAttachments()) {
-            		$has_attach = 'y';
-            	} else {
-            		$has_attach = 'n';
-            	}
-            
+            // Get mail by $mail_id
+            $email = $mailbox->getMail(
+                $mail_id, // ID of the email, you want to get
+                false // Do NOT mark emails as seen
+            );
+
+            $from_name = (isset($email->fromName)) ? $email->fromName : $email->fromAddress;
+            $from_email = $email->fromAddress;
+            foreach ($email->to as $to) {
+                if ($i === 0 && $to != null) {
+                    (strpos($to, self::PREFIX) == 0) ? $task_id = trim(str_replace(self::PREFIX, '', $to), ' ') : $task_id = null;
+                }
+                $i++;
+            }
+            $subject = $email->subject;
+            $message_id = $email->messageId;
+            $date = $email->date;
+
+            if ($email->textHtml) {
+                $email->embedImageAttachments();
+                $message = $email->textHtml;
+            } else {
+                $message = $email->textPlain;
+            }
+
+            if ($email->hasAttachments()) {
+                $has_attach = 'y';
+            } else {
+                $has_attach = 'n';
+            }
+
             $attached_files = array();
 
             $images = array();
             if (!is_null($task_id) && intval($task_id) === intval($task['id'])) {
-                
-                if(!empty($email->getAttachments())) {
-                		$attachments = $email->getAttachments();
-                		foreach ($attachments as $attachment) {
-                		    $attached_files[] = $attachment->name;
-                		    if (!file_exists(DATA_DIR . self::FILES_DIR . $task['id'])) { mkdir(DATA_DIR . self::FILES_DIR . $task['id'], 0755, true); }
-                            $attachment->setFilePath(DATA_DIR . self::FILES_DIR . $task['id'] . '/' . $attachment->name);
-                            if (!file_exists(DATA_DIR . self::FILES_DIR . $task['id'] . '/' . $attachment->name)) { $attachment->saveToDisk(); }
-                		}
-                	} 
+                if (!empty($email->getAttachments())) {
+                    $attachments = $email->getAttachments();
+                    foreach ($attachments as $attachment) {
+                        $attached_files[] = $attachment->name;
+                        if (!file_exists(DATA_DIR . self::FILES_DIR . $task['id'])) {
+                            mkdir(DATA_DIR . self::FILES_DIR . $task['id'], 0755, true);
+                        }
+                        $attachment->setFilePath(DATA_DIR . self::FILES_DIR . $task['id'] . '/' . $attachment->name);
+                        if (!file_exists(DATA_DIR . self::FILES_DIR . $task['id'] . '/' . $attachment->name)) {
+                            $attachment->saveToDisk();
+                        }
+                    }
+                }
 
-                if (!$this->userModel->getByEmail($from_email)) { $connect_to_user = null; } else { $connect_to_user = $this->userModel->getByEmail($from_email); }
+                if (!$this->userModel->getByEmail($from_email)) {
+                    $connect_to_user = null;
+                } else {
+                    $connect_to_user = $this->userModel->getByEmail($from_email);
+                }
 
                 $emails[] = array(
                     'mail_id' => $mail_id,
@@ -126,9 +131,9 @@ class EmailViewController extends BaseController
 
             $mailbox->markMailAsRead($mail_id);
         }
-        
+
         $emails = array_reverse($emails);
-        
+
         $this->response->html($this->helper->layout->task('kbphpimap:task_emails/task', array(
             'task' => $task,
             'project' => $this->projectModel->getById($task['project_id']),
@@ -136,9 +141,8 @@ class EmailViewController extends BaseController
             'title'   => $task['title'],
             'tags'    => $this->taskTagModel->getTagsByTask($task['id']),
         )));
-        
     }
-    
+
     /**
      * File download
      *
@@ -166,7 +170,7 @@ class EmailViewController extends BaseController
             $this->logger->error($e->getMessage());
         }
     }
-    
+
     /**
      * Email delete
      *
@@ -178,14 +182,13 @@ class EmailViewController extends BaseController
         $task_id =  $this->request->getIntegerParam('task_id');
 
         $mailbox = $this->login();
-        	
+
         $mailbox->deleteMail($mail_id);
         $mailbox->disconnect();
-        
+
         $this->view($task_id);
-        
     }
-    
+
     /**
      * Convert Task Email to Task Butoon
      *
@@ -196,61 +199,69 @@ class EmailViewController extends BaseController
         $converter = new HtmlConverter();
         $mail_id =  $this->request->getIntegerParam('mail_id');
         $task_id =  $this->request->getIntegerParam('task_id');
-        $task = $this->getTask(); 
+        $task = $this->getTask();
 
         $mailbox = $this->login();
         $email = $mailbox->getMail(
-        	$mail_id, 
-        	false 
+            $mail_id,
+            false
         );
-        	
+
         $subject = $email->subject;
         $message_id = $email->messageId;
         $date = $email->date;
-        	
-        if($email->textHtml) {
-        	//$email->embedImageAttachments();
+
+        if ($email->textHtml) {
+            //$email->embedImageAttachments();
             $message = $converter->convert($email->textHtml);
         } else {
-        	$message = $email->textPlain;
+            $message = $email->textPlain;
         }
         $message = $email->textPlain;
-        	
-        	
-        if($email->hasAttachments()) {
-            		$has_attach = 'y';
-            	} else {
-            		$has_attach = 'n';
-            	}
-            
+
+
+        if ($email->hasAttachments()) {
+            $has_attach = 'y';
+        } else {
+            $has_attach = 'n';
+        }
+
 
         $task_id = $this->taskCreationModel->create(array(
             'project_id' => $task['project_id'],
             'title' => $subject,
             'description' => isset($message) ? $message : '',
         ));
-                    
-        if(!empty($email->getAttachments())) {
-                $attachments = $email->getAttachments();
-                foreach ($attachments as $attachment) {
-                    if (!file_exists(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id)) { mkdir(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id, 0755, true); }
-                    $tmp_name = DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name;
-                    $attachment->setFilePath($tmp_name);
-                    if (!file_exists($tmp_name)) { $attachment->saveToDisk(); }
-                    $file = file_get_contents($tmp_name);
-                    $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
-                    unlink($tmp_name);
+
+        if (!empty($email->getAttachments())) {
+            $attachments = $email->getAttachments();
+            foreach ($attachments as $attachment) {
+                if (!file_exists(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id)) {
+                    mkdir(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id, 0755, true);
                 }
-        } 
-                
-                
+                $tmp_name = DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name;
+                $attachment->setFilePath($tmp_name);
+                if (!file_exists($tmp_name)) {
+                    $attachment->saveToDisk();
+                }
+                $file = file_get_contents($tmp_name);
+                $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
+                unlink($tmp_name);
+            }
+        }
+
+
         $option = $this->configModel->get('kbphpimap_pref', '2');
-                
-        if ( $option == 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
-     
+
+        if ($option == 2) {
+            $mailbox->markMailAsRead($mail_id);
+        } else {
+            $mailbox->deleteMail($mail_id);
+        }
+
         $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id), false, '', '', $this->request->isAjax()));
     }
-    
+
     /**
      * Convert Email To Comment Butoon
      *
@@ -262,61 +273,64 @@ class EmailViewController extends BaseController
         $user = $this->getUser();
         $mail_id =  $this->request->getIntegerParam('mail_id');
         $task_id =  $this->request->getIntegerParam('task_id');
-        $task = $this->getTask(); 
+        $task = $this->getTask();
         $mailbox = $this->login();
         $email = $mailbox->getMail(
-        	$mail_id, 
-        	false 
+            $mail_id,
+            false
         );
-        	
+
         $subject = $email->subject;
         $message_id = $email->messageId;
         $date = $email->date;
-        	
-        if($email->textHtml) {
-        	//$email->embedImageAttachments();
+
+        if ($email->textHtml) {
+            //$email->embedImageAttachments();
             $message = $converter->convert($email->textHtml);
         } else {
-        	$message = $email->textPlain;
+            $message = $email->textPlain;
         }
         $message = $email->textPlain;
         $from_email = $email->fromAddress;
-        	
-        if($email->hasAttachments()) {
-            		$has_attach = 'y';
-            	} else {
-            		$has_attach = 'n';
-            	}
-            	
-        if (!$this->userModel->getByEmail($from_email)) { 
-            $connect_to_user = null; 
+
+        if ($email->hasAttachments()) {
+            $has_attach = 'y';
+        } else {
+            $has_attach = 'n';
+        }
+
+        if (!$this->userModel->getByEmail($from_email)) {
+            $connect_to_user = null;
             $comment = '*Email converted to comment and originally sent by ' . $from_email . '*' ."\n\n" . (isset($subject) ? "#$subject\n\n" : '') . (isset($message) ? $message : '');
-        } else { 
-            $connect_to_user = $this->userModel->getByEmail($from_email); 
+        } else {
+            $connect_to_user = $this->userModel->getByEmail($from_email);
             $comment = '*Email converted to comment by ' . $user['username']. '*' ."\n\n" . (isset($subject) ? "#$subject\n\n" : '') . (isset($message) ? $message : '');
         }
-        
+
         $values = array(
             'task_id' => $task_id,
             'comment' => $comment,
             'user_id' => is_null($connect_to_user) ? $user['id'] : $connect_to_user['id'],
         );
 
-                    
-        $comment_id = $this->commentModel->create($values); 
-                
-                
-        $option = $this->configModel->get('kbphpimap_pref', '2');
-                
-        if ( $option == 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
-        
-        $task_id = $task_id.'#comment-'.$comment_id;
-     
-        $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id), false, '', '', $this->request->isAjax(), 'comment-'.$comment_id));
 
+        $comment_id = $this->commentModel->create($values);
+
+
+        $option = $this->configModel->get('kbphpimap_pref', '2');
+
+        if ($option == 2) {
+            $mailbox->markMailAsRead($mail_id);
+        } else {
+            $mailbox->deleteMail($mail_id);
+        }
+
+        $task_id = $task_id.'#comment-'.$comment_id;
+
+        $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id), false, '', '', $this->request->isAjax(), 'comment-'.$comment_id));
     }
 
-    
+
     /**
      * Email delete
      *
@@ -324,21 +338,18 @@ class EmailViewController extends BaseController
      */
     private function login()
     {
-
         $server = $this->configModel->get('kbphpimap_server', '');
         $port = $this->configModel->get('kbphpimap_port', '');
         $user = $this->configModel->get('kbphpimap_user', '');
         $password = $this->configModel->get('kbphpimap_password', '');
 
         $mailbox = new PhpImap\Mailbox(
-        	'{'.$server.':' . $port . '/imap/ssl}INBOX', 
-        	$user, 
-        	$password, 
-        	false
+            '{'.$server.':' . $port . '/imap/ssl}INBOX',
+            $user,
+            $password,
+            false
         );
-    
-        return $mailbox;
 
+        return $mailbox;
     }
-        
 }
