@@ -12,7 +12,7 @@
 **:star: If you use it, you should star it on Github!**
 *It's the least you can do for all the work put into it!*
 
-# :magic_wand: EmailMagik for Kanboard
+# :magic_wand: MailMagik for Kanboard
 
 Have you ever asked yourself, how do I send an email to Kanboard to create a task? 
 Did someone suggest the MailGun Plugin, and you got stumped, annoyed, and finally figured it out to realize that it cost your hard earned money to keep using it?
@@ -20,9 +20,9 @@ Did someone then suggest something like Zapier and the API to try to accomplish 
 
 *WELL THIS IS THE PLUGIN FOR YOU!*
 
-Install this plugin today, connect to an IMAP server of your choosing, and boom! You will be making Email Magik in no time!
+Install this plugin today, connect to an IMAP server of your choosing, and boom! You will be making MailMagik in no time!
 
-So come on, give it a go, and let's all make Email Magik happen together!
+So come on, give it a go, and let's all make MailMagik happen together!
 
 This plugin allows you to connect Kanboard directly to an IMAP server. Once connected, you can:
 
