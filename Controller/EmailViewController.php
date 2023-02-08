@@ -209,7 +209,7 @@ class EmailViewController extends BaseController
         $date = $email->date;
         	
         if($email->textHtml) {
-        	$email->embedImageAttachments();
+        	//$email->embedImageAttachments();
             $message = $converter->convert($email->textHtml);
         } else {
         	$message = $email->textPlain;
