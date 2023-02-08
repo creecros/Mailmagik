@@ -248,7 +248,7 @@ class EmailViewController extends BaseController
                 
         if ( $option == 2) { $mailbox->markMailAsRead($mail_id); } else { $mailbox->deleteMail($mail_id); }
      
-        $this->show($task_id);
+        $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id), false, '', '', $this->request->isAjax()));
     }
     
     /**
@@ -314,31 +314,6 @@ class EmailViewController extends BaseController
 
     }
 
-        
-    /**
-     * Show a task
-     *
-     * @access public
-     */
-    public function show($task_id)
-    {
-        $task = $this->taskFinderModel->getDetails($task_id);
-        $subtasks = $this->subtaskModel->getAll($task['id']);
-        $commentSortingDirection = $this->userMetadataCacheDecorator->get(UserMetadataModel::KEY_COMMENT_SORTING_DIRECTION, 'ASC');
-
-        $this->response->html($this->helper->layout->task('task/show', array(
-            'task' => $task,
-            'project' => $this->projectModel->getById($task['project_id']),
-            'files' => $this->taskFileModel->getAllDocuments($task['id']),
-            'images' => $this->taskFileModel->getAllImages($task['id']),
-            'comments' => $this->commentModel->getAll($task['id'], $commentSortingDirection),
-            'subtasks' => $subtasks,
-            'internal_links' => $this->taskLinkModel->getAllGroupedByLabel($task['id']),
-            'external_links' => $this->taskExternalLinkModel->getAll($task['id']),
-            'link_label_list' => $this->linkModel->getList(0, false),
-            'tags' => $this->taskTagModel->getTagsByTask($task['id']),
-        )));
-    }    
     
     /**
      * Email delete
