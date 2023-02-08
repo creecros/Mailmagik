@@ -141,7 +141,7 @@ class ConvertEmailToTask extends Base
                 $project_users = array_merge($userMembers, $groupMembers);
                 $user_in_project = false;
 
-                foreach ($project_users as $user) { 
+                foreach ($project_users as $user) {
                     if ($user['id'] = $connect_to_user['id']) {
                         $user_in_project = true;
                         break;
@@ -160,7 +160,11 @@ class ConvertEmailToTask extends Base
                         'id' => $task_id,
                         'creator_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
                         );
-                    
+
+                    // More attributes from subject
+
+                    $values = array_merge($values, $this->scanSubject($subject, $project_id));
+
                     $this->taskModificationModel->update($values,false);
                 
                     if(!empty($email->getAttachments())) {
@@ -207,5 +211,149 @@ class ConvertEmailToTask extends Base
         return $mailbox;
 
     }
-      
+
+    /**
+     * Scan and extract task attributes from subject.
+     *
+     * @param   string  subject reference
+     * @param   stting  project_id
+     * @return  array   extracted attributes
+     */
+    private function scanSubject(string &$subject, string $project_id) : array
+    {
+        $attributes = array();
+
+        $date_due = $date_started = $priority = NULL;
+
+        // Start- and due date
+
+        if (($date_due = $this->extractDate($subject, 'd')) != NULL)
+        {
+            $attributes = array_merge($attributes, array('date_due' => $date_due));
+        }
+
+        if (($date_started = $this->extractDate($subject, 's')) != NULL)
+        {
+            $attributes = array_merge($attributes, array('date_started' => $date_started));
+        }
+
+        // Priority
+
+        if (($priority = $this->extractPriority($subject)) != NULL)
+        {
+            $attributes = array_merge($attributes, array('priority' => intval($priority)));
+        }
+
+        // Category
+
+        if (($category_name = $this->extractCategory($subject)) != NULL)
+        {
+            if (($category_id = $this->categoryModel->getIdByName($project_id, $category_name)) > 0)
+            {
+                $attributes = array_merge($attributes, array('category_id' => $category_id));
+            }
+        }
+
+        // Tags
+
+        if (count($tags= $this->extractTags($subject)) > 0 )
+        {
+            $attributes = array_merge($attributes, array('tags' => $tags));
+        }
+
+        // Subject was probably modified, due to attribute stuff removal.
+
+        if (count($attributes) > 0)
+        {
+            $attributes = array_merge($attributes, array('title' => trim($subject, ' ')));
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * Extract dates from subject
+     *
+     * @param   string  subject reference
+     * @param   string  prefix, 'd' for due date, 's' for start date
+     * @return  string  extracted date, e.g. '2023-02-08'
+     * @return  NULL    no or no valid date found
+     */
+    private function extractDate(&$subject, $prefix)
+    {
+        $date = $this->extractAttribute($subject, $prefix, '\d{4}-\d{2}-\d{2}');
+
+        return date_create($date) ? $date : NULL;
+    }
+
+    /**
+     * Extract the priority from subject
+     *
+     * @param   string  subject reference
+     * @return  string  extracted priority
+     * @return  NULL    no priority found
+     */
+    private function extractPriority(&$subject)
+    {
+        return $this->extractAttribute($subject, 'p');
+    }
+
+    /**
+     * Extract the category from subject
+     *
+     * @param   string  subject
+     * @return  string  extracted category
+     * @return  NULL    no category found
+     */
+    private function extractCategory(&$subject)
+    {
+        return $this->extractAttribute($subject, 'c');
+    }
+
+    /**
+     * Extract all tags from subject
+     *
+     * @param   string  subject
+     * @return  array   extracted tag names
+     * @return  NULL    no tags found
+     */
+    private function extractTags(&$subject)
+    {
+        $tags = array();
+
+        while (($tag = $this->extractAttribute($subject, 't')) != NULL)
+        {
+            array_push($tags, $tag);
+        }
+
+        return $tags;
+    }
+
+    /**
+     * Extract task attributes from subject
+     * s: start date
+     * d: due date
+     * p: priority
+     * c: category
+     * f: flag
+     *
+     * @param   string  subject reference
+     * @param   string  prefix, see above
+     * @param   string  pattern to remove from subject
+     * @return  string  extracted attribute
+     * @return  NULL    no attribute found
+     */
+    private function extractAttribute(&$subject, $prefix, $pattern = '\w{1,}')
+    {
+        $attribute = NULL;
+
+        if (($pos = strpos($subject, "$prefix:")) && $pos >= 0)
+        {
+            sscanf(substr($subject, $pos), "$prefix:%s", $attribute);
+            $subject = trim(preg_filter("/$prefix:$pattern/", '', $subject, 1), ' ');
+        }
+
+        return $attribute;
+    }
+
 }
