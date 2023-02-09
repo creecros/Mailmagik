@@ -32,7 +32,7 @@ class EmailViewController extends BaseController
     {
         $mailbox = $this->login();
         $task = $this->getTask();
-        
+
         if ($mailbox != false) {
             $this->response->html($this->helper->layout->task('mailmagik:task_emails/task_load', array(
                 'task' => $task,
@@ -41,7 +41,7 @@ class EmailViewController extends BaseController
                 'tags'    => $this->taskTagModel->getTagsByTask($task['id']),
             )));
         } else {
-            $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task['id']), false, '', '', $this->request->isAjax()));   
+            $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task['id']), false, '', '', $this->request->isAjax()));
         }
     }
 
@@ -60,19 +60,19 @@ class EmailViewController extends BaseController
                 $mails_ids = $mailbox->searchMailbox('TO ' . self::PREFIX);
             } catch(PhpImap\Exceptions\ConnectionException $ex) {
                 $this->flash->failure(t('IMAP Server connection could not be established!'));
-                $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task['id']), false, '', '', $this->request->isAjax()));  
+                $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task['id']), false, '', '', $this->request->isAjax()));
                 die();
             }
-    
+
             foreach ($mails_ids as $mail_id) {
                 $i = 0;
-    
+
                 // Get mail by $mail_id
                 $email = $mailbox->getMail(
                     $mail_id, // ID of the email, you want to get
                     false // Do NOT mark emails as seen
                 );
-    
+
                 $from_name = (isset($email->fromName)) ? $email->fromName : $email->fromAddress;
                 $from_email = $email->fromAddress;
                 foreach ($email->to as $to) {
@@ -84,22 +84,22 @@ class EmailViewController extends BaseController
                 $subject = $email->subject;
                 $message_id = $email->messageId;
                 $date = $email->date;
-    
+
                 if ($email->textHtml) {
                     $email->embedImageAttachments();
                     $message = $email->textHtml;
                 } else {
                     $message = $email->textPlain;
                 }
-    
+
                 if ($email->hasAttachments()) {
                     $has_attach = 'y';
                 } else {
                     $has_attach = 'n';
                 }
-    
+
                 $attached_files = array();
-    
+
                 $images = array();
                 if (!is_null($task_id) && intval($task_id) === intval($task['id'])) {
                     if (!empty($email->getAttachments())) {
@@ -115,13 +115,13 @@ class EmailViewController extends BaseController
                             }
                         }
                     }
-    
+
                     if (!$this->userModel->getByEmail($from_email)) {
                         $connect_to_user = null;
                     } else {
                         $connect_to_user = $this->userModel->getByEmail($from_email);
                     }
-    
+
                     $emails[] = array(
                         'mail_id' => $mail_id,
                         'task_id' => $task_id,
@@ -137,12 +137,12 @@ class EmailViewController extends BaseController
                         'user' => $connect_to_user,
                     );
                 }
-    
+
                 $mailbox->markMailAsRead($mail_id);
             }
-    
+
             $emails = array_reverse($emails);
-    
+
             $this->response->html($this->helper->layout->task('mailmagik:task_emails/task', array(
                 'task' => $task,
                 'project' => $this->projectModel->getById($task['project_id']),
@@ -212,17 +212,17 @@ class EmailViewController extends BaseController
         $task = $this->getTask();
 
         $mailbox = $this->login();
-        
+
         if ($mailbox != false) {
             $email = $mailbox->getMail(
                 $mail_id,
                 false
             );
-    
+
             $subject = $email->subject;
             $message_id = $email->messageId;
             $date = $email->date;
-    
+
             if ($email->textHtml) {
                 //$email->embedImageAttachments();
                 $message = $converter->convert($email->textHtml);
@@ -230,21 +230,21 @@ class EmailViewController extends BaseController
                 $message = $email->textPlain;
             }
             $message = $email->textPlain;
-    
-    
+
+
             if ($email->hasAttachments()) {
                 $has_attach = 'y';
             } else {
                 $has_attach = 'n';
             }
-    
-    
+
+
             $task_id = $this->taskCreationModel->create(array(
                 'project_id' => $task['project_id'],
                 'title' => $subject,
                 'description' => isset($message) ? $message : '',
             ));
-    
+
             if (!empty($email->getAttachments())) {
                 $attachments = $email->getAttachments();
                 foreach ($attachments as $attachment) {
@@ -288,17 +288,17 @@ class EmailViewController extends BaseController
         $task_id =  $this->request->getIntegerParam('task_id');
         $task = $this->getTask();
         $mailbox = $this->login();
-        
+
         if ($mailbox != false) {
             $email = $mailbox->getMail(
                 $mail_id,
                 false
             );
-    
+
             $subject = $email->subject;
             $message_id = $email->messageId;
             $date = $email->date;
-    
+
             if ($email->textHtml) {
                 //$email->embedImageAttachments();
                 $message = $converter->convert($email->textHtml);
@@ -307,13 +307,13 @@ class EmailViewController extends BaseController
             }
             $message = $email->textPlain;
             $from_email = $email->fromAddress;
-    
+
             if ($email->hasAttachments()) {
                 $has_attach = 'y';
             } else {
                 $has_attach = 'n';
             }
-    
+
             if (!$this->userModel->getByEmail($from_email)) {
                 $connect_to_user = null;
                 $comment = '*Email converted to comment and originally sent by ' . $from_email . '*' ."\n\n" . (isset($subject) ? "#$subject\n\n" : '') . (isset($message) ? $message : '');
@@ -321,29 +321,28 @@ class EmailViewController extends BaseController
                 $connect_to_user = $this->userModel->getByEmail($from_email);
                 $comment = '*Email converted to comment by ' . $user['username']. '*' ."\n\n" . (isset($subject) ? "#$subject\n\n" : '') . (isset($message) ? $message : '');
             }
-    
+
             $values = array(
                 'task_id' => $task_id,
                 'comment' => $comment,
                 'user_id' => is_null($connect_to_user) ? $user['id'] : $connect_to_user['id'],
             );
-    
-    
+
+
             $comment_id = $this->commentModel->create($values);
-    
-    
+
+
             $option = $this->configModel->get('mailmagik_pref', '2');
-    
+
             if ($option == 2) {
                 $mailbox->markMailAsRead($mail_id);
             } else {
                 $mailbox->deleteMail($mail_id);
             }
-    
+
             $task_id = $task_id.'#comment-'.$comment_id;
-    
+
             $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id), false, '', '', $this->request->isAjax(), 'comment-'.$comment_id));
-            
         }
     }
 
@@ -359,18 +358,16 @@ class EmailViewController extends BaseController
         $port = $this->configModel->get('mailmagik_port', '');
         $user = $this->configModel->get('mailmagik_user', '');
         $password = $this->configModel->get('mailmagik_password', '');
-        
+
         if ($server != '' && $port != '' && $user != '' && $password != '') {
-            
             $mailbox = new PhpImap\Mailbox(
                 '{'.$server.':' . $port . '/imap/ssl}INBOX',
                 $user,
                 $password,
                 false
             );
-    
+
             return $mailbox;
-            
         } else {
             $this->flash->failure(t('IMAP Server is missing config settings information!'));
             return false;
