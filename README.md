@@ -43,6 +43,23 @@ Emails sent to a task can be found in the Task uner the "Task Email" icon on the
 
 In order to setup automatic conversions of email, you will need to add the Actions to the project.
 
+When sending emails for automatic Task Conversion, MailMagik can parse the subject line to add attributes to the Task:
+
+|in Subject|Effect
+|-|-
+|d:YYYY-MM-DD| Set due date
+|s:YYYY-MM-DD |Set start date
+|p:n |Set priority n
+|c:name| Set category 'name'
+|t:name| Add tag 'name', may be repeated. Non-existing tags will be created, beware of typos.
+
+A subject line containing
+
+> Test c:SQL p:3 d:2023-02-28 s:2023-02-20
+
+will create a priority 3 task named "Test", category "SQL", start on Feb 20 and due on Feb 28.
+
+![image](https://user-images.githubusercontent.com/2079289/217609719-e1fecea5-0616-4cb7-be31-7db6f2c418c1.png)
 
 **Plugin Author:** _[creecros](https://github.com/creecros)_
 
