@@ -6,7 +6,7 @@
 )) ?>
 
 <div class="page-header">
-    <h2><?= t('Task Email: Task#') . $task['id'] . ' &lt;' . $this->task->configModel->get('mailmagik_user', '') . '&gt;' ?></h2>
+    <h2 class=""><?= t('Task Email: Task#') . $task['id'] . ' &lt;' . $this->task->configModel->get('mailmagik_user', '') . '&gt;' ?></h2>
 </div>
 
 <?= $this->render('mailmagik:task_emails/load', array()) ?>

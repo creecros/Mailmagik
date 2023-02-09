@@ -1,4 +1,4 @@
-    <fieldset>
+    <fieldset class="mm-server-setup">
         <legend><?= t('Mailmagik Server Setup') ?></legend>
             <?= $this->form->label(t('IMAP server'), 'mailmagik_server') ?>
             <?= $this->form->text('mailmagik_server', $values, $errors, array('placeholder="imap.gmail.com"')) ?>
