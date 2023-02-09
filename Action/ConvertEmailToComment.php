@@ -1,6 +1,6 @@
 <?php
 
-namespace Kanboard\Plugin\Kbphpimap\Action;
+namespace Kanboard\Plugin\Mailmagik\Action;
 
 require __DIR__.'/../vendor/autoload.php';
 
@@ -160,7 +160,7 @@ class ConvertEmailToComment extends Base
                     $this->commentModel->create($values);
                 }
 
-                $option = $this->configModel->get('kbphpimap_pref', '2');
+                $option = $this->configModel->get('mailmagik_pref', '2');
 
                 if ($option == 2) {
                     $mailbox->markMailAsRead($mail_id);
@@ -173,10 +173,10 @@ class ConvertEmailToComment extends Base
 
     public function login()
     {
-        $server = $this->configModel->get('kbphpimap_server', '');
-        $port = $this->configModel->get('kbphpimap_port', '');
-        $user = $this->configModel->get('kbphpimap_user', '');
-        $password = $this->configModel->get('kbphpimap_password', '');
+        $server = $this->configModel->get('mailmagik_server', '');
+        $port = $this->configModel->get('mailmagik_port', '');
+        $user = $this->configModel->get('mailmagik_user', '');
+        $password = $this->configModel->get('mailmagik_password', '');
 
         $mailbox = new PhpImap\Mailbox(
             '{'.$server.':' . $port . '/imap/ssl}INBOX',

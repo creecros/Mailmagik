@@ -1,6 +1,6 @@
 <?php
 
-namespace Kanboard\Plugin\Kbphpimap\Controller;
+namespace Kanboard\Plugin\Mailmagik\Controller;
 
 require __DIR__.'/../vendor/autoload.php';
 
@@ -19,19 +19,19 @@ use PhpImap;
 use League\HTMLToMarkdown\HtmlConverter;
 
 /**
- * Kbphpimap Plugin
+ * Mailmagik Plugin
  *
  * @author Craig Crosby
  */
 class EmailViewController extends BaseController
 {
     public const PREFIX = 'Task#';
-    public const FILES_DIR = '/files/kbphpimap/files/';
+    public const FILES_DIR = '/files/mailmagik/files/';
 
     public function load()
     {
         $task = $this->getTask();
-        $this->response->html($this->helper->layout->task('kbphpimap:task_emails/task_load', array(
+        $this->response->html($this->helper->layout->task('mailmagik:task_emails/task_load', array(
             'task' => $task,
             'project' => $this->projectModel->getById($task['project_id']),
             'title'   => $task['title'],
@@ -134,7 +134,7 @@ class EmailViewController extends BaseController
 
         $emails = array_reverse($emails);
 
-        $this->response->html($this->helper->layout->task('kbphpimap:task_emails/task', array(
+        $this->response->html($this->helper->layout->task('mailmagik:task_emails/task', array(
             'task' => $task,
             'project' => $this->projectModel->getById($task['project_id']),
             'emails' => $emails,
@@ -236,10 +236,10 @@ class EmailViewController extends BaseController
         if (!empty($email->getAttachments())) {
             $attachments = $email->getAttachments();
             foreach ($attachments as $attachment) {
-                if (!file_exists(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id)) {
-                    mkdir(DATA_DIR . '/files/kbphpimap/tmp/' . $task_id, 0755, true);
+                if (!file_exists(DATA_DIR . '/files/mailmagik/tmp/' . $task_id)) {
+                    mkdir(DATA_DIR . '/files/mailmagik/tmp/' . $task_id, 0755, true);
                 }
-                $tmp_name = DATA_DIR . '/files/kbphpimap/tmp/' . $task_id . '/' . $attachment->name;
+                $tmp_name = DATA_DIR . '/files/mailmagik/tmp/' . $task_id . '/' . $attachment->name;
                 $attachment->setFilePath($tmp_name);
                 if (!file_exists($tmp_name)) {
                     $attachment->saveToDisk();
@@ -251,7 +251,7 @@ class EmailViewController extends BaseController
         }
 
 
-        $option = $this->configModel->get('kbphpimap_pref', '2');
+        $option = $this->configModel->get('mailmagik_pref', '2');
 
         if ($option == 2) {
             $mailbox->markMailAsRead($mail_id);
@@ -317,7 +317,7 @@ class EmailViewController extends BaseController
         $comment_id = $this->commentModel->create($values);
 
 
-        $option = $this->configModel->get('kbphpimap_pref', '2');
+        $option = $this->configModel->get('mailmagik_pref', '2');
 
         if ($option == 2) {
             $mailbox->markMailAsRead($mail_id);
@@ -338,10 +338,10 @@ class EmailViewController extends BaseController
      */
     private function login()
     {
-        $server = $this->configModel->get('kbphpimap_server', '');
-        $port = $this->configModel->get('kbphpimap_port', '');
-        $user = $this->configModel->get('kbphpimap_user', '');
-        $password = $this->configModel->get('kbphpimap_password', '');
+        $server = $this->configModel->get('mailmagik_server', '');
+        $port = $this->configModel->get('mailmagik_port', '');
+        $user = $this->configModel->get('mailmagik_user', '');
+        $password = $this->configModel->get('mailmagik_password', '');
 
         $mailbox = new PhpImap\Mailbox(
             '{'.$server.':' . $port . '/imap/ssl}INBOX',

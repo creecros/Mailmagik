@@ -1,37 +1,37 @@
 <?php
 
-namespace Kanboard\Plugin\Kbphpimap;
+namespace Kanboard\Plugin\Mailmagik;
 
 use Kanboard\Core\Plugin\Base;
-use Kanboard\Plugin\Kbphpimap\Action\ConvertEmailToTask;
-use Kanboard\Plugin\Kbphpimap\Action\ConvertEmailToComment;
+use Kanboard\Plugin\Mailmagik\Action\ConvertEmailToTask;
+use Kanboard\Plugin\Mailmagik\Action\ConvertEmailToComment;
 
 class Plugin extends Base
 {
     public function initialize()
     {
-        if (!file_exists(DATA_DIR . '/files/kbphpimap/files')) {
-            mkdir(DATA_DIR . '/files/kbphpimap/files', 0755, true);
+        if (!file_exists(DATA_DIR . '/files/mailmagik/files')) {
+            mkdir(DATA_DIR . '/files/mailmagik/files', 0755, true);
         }
 
         $this->initConfig(array(
-            'kbphpimap_taskemail_pref' => '1',
-            'kbphpimap_pref' => '2',
+            'mailmagik_taskemail_pref' => '1',
+            'mailmagik_pref' => '2',
         ));
 
         // Hooks
-        $option = $this->configModel->get('kbphpimap_taskemail_pref', '1');
+        $option = $this->configModel->get('mailmagik_taskemail_pref', '1');
         if ($option == 1) {
-            $this->template->hook->attach('template:task:sidebar:information', 'kbphpimap:task/emails');
+            $this->template->hook->attach('template:task:sidebar:information', 'mailmagik:task/emails');
         }
 
 
         //CONFIG HOOK
-        $this->template->hook->attach('template:config:email', 'kbphpimap:config/config');
+        $this->template->hook->attach('template:config:email', 'mailmagik:config/config');
 
         //css
-        $this->hook->on('template:layout:css', array('template' => 'plugins/Kbphpimap/Assets/css/kbphpimap.css'));
-        $this->hook->on('template:layout:js', array('template' => 'plugins/Kbphpimap/Assets/js/kbphpimap.js'));
+        $this->hook->on('template:layout:css', array('template' => 'plugins/Mailmagik/Assets/css/mailmagik.css'));
+        $this->hook->on('template:layout:js', array('template' => 'plugins/Mailmagik/Assets/js/mailmagik.js'));
 
         //ACTIONS
         $this->actionManager->register(new ConvertEmailToTask($this->container));
@@ -40,7 +40,7 @@ class Plugin extends Base
 
     public function getPluginName()
     {
-        return 'Kbphpimap';
+        return 'Mailmagik';
     }
 
     public function getPluginAuthor()
@@ -60,7 +60,7 @@ class Plugin extends Base
 
     public function getPluginHomepage()
     {
-        return 'https://github.com/creecros/kbphpimap';
+        return 'https://github.com/creecros/mailmagik';
     }
 
     private function initConfig(array $configs)
