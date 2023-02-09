@@ -55,7 +55,7 @@ class Plugin extends Base
 
     public function getPluginDescription()
     {
-        return 'handle emails';
+        return 'Connect Kanboard to an IMAP server to recieve emails and automatically convert emails to tasks or comments';
     }
 
     public function getPluginHomepage()
