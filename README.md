@@ -102,20 +102,22 @@ Run both commands
 
 ## Manually
 
-1. Download the latest versions supplied zip file, it should be named `kbphpimap-x.xx.x.zip`
+1. Download the latest versions supplied zip file, it should be named `Mailmagik-x.xx.x.zip`
   - I advise not to install from source or master
-
-![image](https://user-images.githubusercontent.com/26339368/58711319-45ba2d00-838c-11e9-9d07-71a526ba5b74.png)
 
 2. Unzip to the plugins folder.
   - your folder structure should look like the following:
 ```
 plugins
-└── Kbphpimap            <= Plugin name
+└── Mailmagik            <= Plugin name
+    ├── Action  
+    ├── Assets  
     ├── Controller  
     ├── Template
     ├── vendor
     ├── LICENSE
+    ├── CHANGELOG.MD 
+    ├── Makefile 
     ├── Plugin.php   
     ├── README.md
     ├── composer.json
