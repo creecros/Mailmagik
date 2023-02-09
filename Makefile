@@ -1,5 +1,5 @@
 
-extract = $(shell grep -A2 $(1) Plugin.php | tail -n1 | tr -d "return ';" )
+extract = $(shell grep -A2 $(1) Plugin.php | tail -n1 | tr -d " ;'" | sed "s/return//")
 
 plugin = $(call extract, getPluginName)
 version = $(call extract, getPluginVersion)
