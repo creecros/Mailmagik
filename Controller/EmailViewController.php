@@ -59,6 +59,8 @@ class EmailViewController extends BaseController
                 // Here, we search for "all" emails
                 $mails_ids = $mailbox->searchMailbox('TO ' . self::PREFIX);
             } catch(PhpImap\Exceptions\ConnectionException $ex) {
+                $this->flash->failure(t('IMAP Server connection could not be established!'));
+                $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task['id']), false, '', '', $this->request->isAjax()));  
                 die();
             }
     
