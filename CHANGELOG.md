@@ -7,34 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-- None so far
+- Nothing so far
 
----
+## [1.1.0](https://github.com/creecros/Mailmagik/releases/tag/1.1.0) - 2023-02-09
 
-## v1.1.0 - 2019-02-15
+Initial release
 
-### Added 
-
-- for new features.
-
-### Changed
-
-- for changes in existing functionality.
-
-### Deprecated
-
-- for soon-to-be removed features.
-
-### Removed
-
-- for now removed features.
+## [1.1.1](https://github.com/creecros/Mailmagik/releases/tag/1.1.1) - 2023-02-14
 
 ### Fixed
 
-- for any bug fixes.
-
-### Security 
-
-- in case of vulnerabilities.
-
----
+- [#16](https://github.com/creecros/Mailmagik/issues/16) To README.md: There must be at least 1 open task in a project for the automatic actions to work.
+- [#17](https://github.com/creecros/Mailmagik/issues/17)  PHP 8 Deprecated Warnings.
