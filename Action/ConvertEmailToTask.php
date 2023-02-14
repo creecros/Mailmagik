@@ -274,7 +274,8 @@ class ConvertEmailToTask extends Base
      */
     private function extractDate(&$subject, $prefix)
     {
-        $date = ($this->extractAttribute($subject, $prefix, '\d{4}-\d{2}-\d{2}') != null) ? $this->extractAttribute($subject, $prefix, '\d{4}-\d{2}-\d{2}') : '';
+        $attr = $this->extractAttribute($subject, $prefix, '\d{4}-\d{2}-\d{2}');
+        $date = ($attr != null) ? $attr : '';
 
         return date_create($date) ? $date : null;
     }
