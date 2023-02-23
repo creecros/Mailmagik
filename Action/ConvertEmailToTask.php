@@ -4,13 +4,13 @@ namespace Kanboard\Plugin\Mailmagik\Action;
 
 require __DIR__.'/../vendor/autoload.php';
 
-use Kanboard\Controller\BaseController;
-use Kanboard\Model\UserModel;
-use Kanboard\Model\ProjectModel;
-use PhpImap;
-use Kanboard\Model\TaskModel;
 use Kanboard\Action\Base;
+use Kanboard\Controller\BaseController;
+use Kanboard\Model\ProjectModel;
+use Kanboard\Model\TaskModel;
+use Kanboard\Model\UserModel;
 use League\HTMLToMarkdown\HtmlConverter;
+use PhpImap;
 
 /**
  * Action to convert email to a task
@@ -82,19 +82,13 @@ class ConvertEmailToTask extends Base
         $project = $this->projectModel->getById($data['project_id']);
         $emails = array();
 
-        $mailbox = $this->login();
-
-        try {
-            // Search in mailbox folder for specific emails
-            // PHP.net imap_search criteria: http://php.net/manual/en/function.imap-search.php
-            $mails_ids = $mailbox->searchMailbox('UNSEEN TO ' . self::PREFIX);
-        } catch(PhpImap\Exceptions\ConnectionException $ex) {
-            die();
+        if (($mailbox = $this->helper->mailHelper->login()) === false) {
+            return;
         }
 
-        foreach ($mails_ids as $mail_id) {
-            $i = 0;
+        $mails_ids = $this->helper->mailHelper->getUnseenMails($mailbox, self::PREFIX);
 
+        foreach ($mails_ids as $mail_id) {
             // Get mail by $mail_id
             $email = $mailbox->getMail(
                 $mail_id, // ID of the email, you want to get
@@ -103,12 +97,7 @@ class ConvertEmailToTask extends Base
 
             $from_name = (isset($email->fromName)) ? $email->fromName : $email->fromAddress;
             $from_email = $email->fromAddress;
-            foreach ($email->to as $to) {
-                if ($i === 0 && $to != null) {
-                    (strpos($to, self::PREFIX) == 0) ? $project_id = str_replace(self::PREFIX, '', $to) : $project_id = null;
-                }
-                $i++;
-            }
+            $project_id = $this->helper->mailHelper->getItemId($email, self::PREFIX);
             $subject = $email->subject;
             $message_id = $email->messageId;
             $date = $email->date;
@@ -184,32 +173,9 @@ class ConvertEmailToTask extends Base
                     }
                 }
 
-                $option = $this->configModel->get('mailmagik_pref', '2');
-
-                if ($option == 2) {
-                    $mailbox->markMailAsRead($mail_id);
-                } else {
-                    $mailbox->deleteMail($mail_id);
-                }
+                $this->helper->mailHelper->processMessage($mailbox, $mail_id);
             }
         }
-    }
-
-    public function login()
-    {
-        $server = $this->configModel->get('mailmagik_server', '');
-        $port = $this->configModel->get('mailmagik_port', '');
-        $user = $this->configModel->get('mailmagik_user', '');
-        $password = $this->configModel->get('mailmagik_password', '');
-
-        $mailbox = new PhpImap\Mailbox(
-            '{'.$server.':' . $port . '/imap/ssl}INBOX',
-            $user,
-            $password,
-            false
-        );
-
-        return $mailbox;
     }
 
     /**

@@ -19,12 +19,14 @@ class Plugin extends Base
             'mailmagik_pref' => '2',
         ));
 
+        // Helper
+        $this->helper->register('mailHelper', '\Kanboard\Plugin\Mailmagik\Helper\MailHelper');
+
         // Hooks
         $option = $this->configModel->get('mailmagik_taskemail_pref', '1');
         if ($option == 1) {
             $this->template->hook->attach('template:task:sidebar:information', 'mailmagik:task/emails');
         }
-
 
         //CONFIG HOOK
         $this->template->hook->attach('template:config:email', 'mailmagik:config/config');
