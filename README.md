@@ -41,14 +41,16 @@ This plugin allows you to connect Kanboard directly to an IMAP server. Once conn
 
 
 Once installed, setup in config:
-![image](https://user-images.githubusercontent.com/26339368/216668816-a7a00c09-7594-4fda-8d7a-2f59dc6c0028.png)
+<br>
+<img src="https://user-images.githubusercontent.com/26339368/216668816-a7a00c09-7594-4fda-8d7a-2f59dc6c0028.png" alt="image" width="50%">
 
 - Example to send an email directly to a task: `Task#1<myemail@email.com>`
 - Example to send an email to a project for task conversion: `Project#1<myemail@email.com>`
 - Example to send an email to a task for comment conversion: `CommentOnTask#1<myemail@email.com>`
 
 Emails sent to a task can be found in the Task uner the "Task Email" icon on the sidebar:
-![image](https://user-images.githubusercontent.com/26339368/216670260-ddffad7f-62ee-4297-ad73-3ec03d9fb04e.png)
+<br>
+<img src="https://user-images.githubusercontent.com/26339368/216670260-ddffad7f-62ee-4297-ad73-3ec03d9fb04e.png" alt="image" width="65%">
 
 
 In order to setup automatic conversions of email, you will need to add the Actions to the project.
