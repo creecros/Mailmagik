@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- [#20](https://github.com/creecros/Mailmagik/issues/20) Create an own cronjob, for mail fetching only. 
-
 ## [1.1.0](https://github.com/creecros/Mailmagik/releases/tag/1.1.0) - 2023-02-09
 
 Initial release
@@ -21,3 +19,11 @@ Initial release
 
 - [#16](https://github.com/creecros/Mailmagik/issues/16) To README.md: There must be at least 1 open task in a project for the automatic actions to work.
 - [#17](https://github.com/creecros/Mailmagik/issues/17)  PHP 8 Deprecated Warnings.
+
+## [1.2.0](https://github.com/creecros/Mailmagik/releases/tag/1.2.0) - 2023-02-24
+
+### Added
+
+- [#20](https://github.com/creecros/Mailmagik/issues/20) Create an own cronjob, for mail fetching only. 
+- https://github.com/creecros/Mailmagik/commit/221a6fb929e5298b9e4acb0748dcb2f9898c34fd Rework Config Setting to Check box
+- https://github.com/creecros/Mailmagik/commit/eb2623e59664cfecfb301e107f8af61fcd44313d Add MailHelper
