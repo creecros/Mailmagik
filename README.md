@@ -29,8 +29,20 @@ This plugin allows you to connect Kanboard directly to an IMAP server. Once conn
 1. Send emails directly to a task
 2. Send emails to a project to automatically be converted into a task within the project
 3. Send emails to a task to automatically convert into a task comment
+4. Adds a Trigger Event that can be called using the Crontab
 
-**For 2 & 3 to work, you will need to setup the automatic actions in the project config, and there _MUST_ be at least 1 open task within the project**
+**For #2 & #3**
+- *Using the Daily Background Job for Tasks: You will need to setup the automatic actions in the project config, and there _MUST_ be at least 1 open task within the project*
+- *Using the Mailmagik mail fetching trigger: You will need to setup the automatic actions in the project config*
+
+**For #4**
+- *Trigger using: `./cli mailmagik:fetchmail`*
+- *Example of adding to crontab to run independently of Daily Background Job:*
+```
+0 8 * * * cd /var/www/app && ./cli cronjob >/dev/null 2>&1
+* * * * * cd /var/www/app && ./cli mailmagik:fetchmail
+```
+
 
 Once installed, setup in config:
 ![image](https://user-images.githubusercontent.com/26339368/216668816-a7a00c09-7594-4fda-8d7a-2f59dc6c0028.png)
