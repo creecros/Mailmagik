@@ -3,8 +3,11 @@
 namespace Kanboard\Plugin\Mailmagik;
 
 use Kanboard\Core\Plugin\Base;
-use Kanboard\Plugin\Mailmagik\Action\ConvertEmailToTask;
 use Kanboard\Plugin\Mailmagik\Action\ConvertEmailToComment;
+use Kanboard\Plugin\Mailmagik\Action\ConvertEmailToTask;
+use Kanboard\Plugin\Mailmagik\Console\Command;
+use Kanboard\Plugin\Mailmagik\Console\FetchMail;
+use Kanboard\Plugin\Mailmagik\Helper\MailHelper;
 
 class Plugin extends Base
 {
@@ -28,16 +31,25 @@ class Plugin extends Base
             $this->template->hook->attach('template:task:sidebar:information', 'mailmagik:task/emails');
         }
 
-        //CONFIG HOOK
+        // Config hook
         $this->template->hook->attach('template:config:email', 'mailmagik:config/config');
 
         //css
         $this->hook->on('template:layout:css', array('template' => 'plugins/Mailmagik/Assets/css/mailmagik.css'));
         $this->hook->on('template:layout:js', array('template' => 'plugins/Mailmagik/Assets/js/mailmagik.js'));
 
-        //ACTIONS
+        // Actions
         $this->actionManager->register(new ConvertEmailToTask($this->container));
         $this->actionManager->register(new ConvertEmailToComment($this->container));
+
+        // Commandline: ./cli mailmagik:fetchmail
+        $this->cli->add(new Command($this->container));
+        $this->cli->add(new FetchMail($this->container));
+    }
+
+    public function onStartup()
+    {
+        $this->eventManager->register(MailHelper::EVENT_FETCHMAIL, t('Trigger Mailmagik mail fetching'));
     }
 
     public function getPluginName()

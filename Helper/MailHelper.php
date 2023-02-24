@@ -9,6 +9,8 @@ use PhpImap;
 
 class MailHelper extends Base
 {
+    public const EVENT_FETCHMAIL = 'mailmagik.fetchmail';
+
     /**
      * Login to the IMAP server
      *

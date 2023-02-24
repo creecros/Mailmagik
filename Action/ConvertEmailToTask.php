@@ -9,6 +9,7 @@ use Kanboard\Controller\BaseController;
 use Kanboard\Model\ProjectModel;
 use Kanboard\Model\TaskModel;
 use Kanboard\Model\UserModel;
+use Kanboard\Plugin\Mailmagik\Helper\MailHelper;
 use League\HTMLToMarkdown\HtmlConverter;
 use PhpImap;
 
@@ -39,6 +40,7 @@ class ConvertEmailToTask extends Base
     {
         return array(
             TaskModel::EVENT_DAILY_CRONJOB,
+            MailHelper::EVENT_FETCHMAIL,
         );
     }
     /**
