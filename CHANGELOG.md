@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-- Nothing so far
+### Added
+
+- [#20](https://github.com/creecros/Mailmagik/issues/20) Create an own cronjob, for mail fetching only. 
 
 ## [1.1.0](https://github.com/creecros/Mailmagik/releases/tag/1.1.0) - 2023-02-09
 
