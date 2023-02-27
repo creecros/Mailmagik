@@ -73,10 +73,11 @@ will create a priority 3 task named "Test", category "SQL", start on Feb 20 and 
 
 ![image](https://user-images.githubusercontent.com/2079289/217609719-e1fecea5-0616-4cb7-be31-7db6f2c418c1.png)
 
-**Plugin Author:** _[creecros](https://github.com/creecros)_
+**Plugin Authors:** 
+- _[creecros](https://github.com/creecros)_
+- _[alfredbuehler](https://github.com/alfredbuehler)_
 
 **Collaborators and Contributors:** 
-- _[alfredbuehler](https://github.com/alfredbuehler)_
 - _[aljawaid](https://github.com/aljawaid)_
 
 # Requirements
