@@ -12,6 +12,16 @@
             <?= $this->form->label(t('Password'), 'mailmagik_password') ?>
             <?= $this->form->password('mailmagik_password', $values, $errors) ?>
 
+            <?= $this->form->label(t('Folder'), 'mailmagik_folder') ?>
+            <?= $this->form->text('mailmagik_folder',$values, $errors, array(
+                'placeholder="INBOX"',
+                'list="folderlist"',
+            )) ?>
+            <datalist id='folderlist'>
+                <?php foreach ($folders as $folder): ?>
+                    <option><?= $this->text->e($folder) ?></option>
+                <?php endforeach ?>
+            </datalist>
 
             <fieldset>
                 <legend><?= t('After processing emails automatically') ?></legend>

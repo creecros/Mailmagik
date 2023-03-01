@@ -22,10 +22,11 @@ class MailHelper extends Base
         $port = $this->configModel->get('mailmagik_port', '');
         $user = $this->configModel->get('mailmagik_user', '');
         $password = $this->configModel->get('mailmagik_password', '');
+        $folder = $this->configModel->get('mailmagik_folder', 'INBOX');
 
         if ($server != '' && $port != '' && $user != '' && $password != '') {
             return new PhpImap\Mailbox(
-                '{' . $server . ':' . $port . '/imap/ssl}INBOX',
+                '{' . $server . ':' . $port . '/imap/ssl}' . $folder,
                 $user,
                 $password,
                 false
@@ -34,9 +35,6 @@ class MailHelper extends Base
             return false;
         }
     }
-
-    // TODO flash rausnehmen
-    // $this->flash->failure(t('IMAP Server is missing config settings information!'));
 
     /**
      * Get all task mails.
@@ -119,5 +117,24 @@ class MailHelper extends Base
         }
 
         return $mails_ids;
+    }
+
+    /**
+     * Get the folder tree of the mailbox.
+     *
+     * @return array Folder names
+     */
+    public function getFolders(): array
+    {
+        $mailbox = $this->login();
+        $values = array();
+        if ($mailbox != false) {
+            $folders = $mailbox->getMailboxes('*');
+            foreach ($folders as $folder) {
+                array_push($values, $folder['shortpath']);
+            }
+        }
+
+        return $values;
     }
 }

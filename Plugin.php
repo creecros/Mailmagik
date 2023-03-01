@@ -32,7 +32,9 @@ class Plugin extends Base
         }
 
         // Config hook
-        $this->template->hook->attach('template:config:email', 'mailmagik:config/config');
+        $this->template->hook->attach('template:config:email', 'mailmagik:config/config', array(
+            'folders' => $this->helper->mailHelper->getFolders(),
+        ));
 
         //css
         $this->hook->on('template:layout:css', array('template' => 'plugins/Mailmagik/Assets/css/mailmagik.css'));
