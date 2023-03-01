@@ -36,4 +36,4 @@ Initial release
 -  [#22](https://github.com/creecros/Mailmagik/issues/22) Added options for including or not including attachments when convert to tasks or comments, both in task emails or automatic conversion
 
 ### Fixes
-- [](https://github.com/creecros/Mailmagik/commit/7e467019d03905700a2494a516ab1a0f934c3664) Change HTML to markdown conversion and remove erroneuos code
+- (https://github.com/creecros/Mailmagik/commit/7e467019d03905700a2494a516ab1a0f934c3664) Change HTML to markdown conversion and remove erroneuos code
