@@ -29,12 +29,11 @@
                     '1' => t('Delete emails'),
                     '2' => t('Mark emails as seen'),
                 ), $values) ?>
-                <legend><?= t('Include attachments when converting to task automatically?') ?></legend>
+                <br>
                 <?= $this->form->hidden('mailmagik_include_files_tasks', array('mailmagik_include_files_tasks' => '0')) ?>
-                <?= $this->form->checkbox('mailmagik_include_files_tasks', t('Enable'), 1, $values['mailmagik_include_files_tasks']) ?>
-                <legend><?= t('Include attachments when converting to comment automatically?') ?></legend>
+                <?= $this->form->checkbox('mailmagik_include_files_tasks', t('Include attachments when converting to task automatically?'), 1, $values['mailmagik_include_files_tasks']) ?>
                 <?= $this->form->hidden('mailmagik_include_files_comments', array('mailmagik_include_files_comments' => '0')) ?>
-                <?= $this->form->checkbox('mailmagik_include_files_comments', t('Enable'), 1, $values['mailmagik_include_files_comments']) ?>
+                <?= $this->form->checkbox('mailmagik_include_files_comments', t('Include attachments when converting to comment automatically?'), 1, $values['mailmagik_include_files_comments']) ?>
             </fieldset>
             <fieldset>
                 <legend><?= t('Task Email Feature') ?></legend>
