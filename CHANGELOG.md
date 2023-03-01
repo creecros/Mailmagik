@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
--  [#21](https://github.com/creecros/Mailmagik/issues/21) Allow the use of IMAP-subfolders 
 ---
 
 ## [1.1.0](https://github.com/creecros/Mailmagik/releases/tag/1.1.0) - 2023-02-09
@@ -29,3 +28,12 @@ Initial release
 - [#20](https://github.com/creecros/Mailmagik/issues/20) Create an own cronjob, for mail fetching only.
 - https://github.com/creecros/Mailmagik/commit/221a6fb929e5298b9e4acb0748dcb2f9898c34fd Rework Config Setting to Check box
 - https://github.com/creecros/Mailmagik/commit/eb2623e59664cfecfb301e107f8af61fcd44313d Add MailHelper
+
+## [1.2.1](https://github.com/creecros/Mailmagik/releases/tag/1.2.1) - 2023-03-01
+
+### Added
+-  [#21](https://github.com/creecros/Mailmagik/issues/21) Allow the use of IMAP-subfolders 
+-  [#22](https://github.com/creecros/Mailmagik/issues/22) Added options for including or not including attachments when convert to tasks or comments, both in task emails or automatic conversion
+
+### Fixes
+- [](https://github.com/creecros/Mailmagik/commit/7e467019d03905700a2494a516ab1a0f934c3664) Change HTML to markdown conversion and remove erroneuos code
