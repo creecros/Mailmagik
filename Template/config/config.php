@@ -13,7 +13,7 @@
             <?= $this->form->password('mailmagik_password', $values, $errors) ?>
 
             <?= $this->form->label(t('Folder'), 'mailmagik_folder') ?>
-            <?= $this->form->text('mailmagik_folder',$values, $errors, array(
+            <?= $this->form->text('mailmagik_folder', $values, $errors, array(
                 'placeholder="INBOX"',
                 'list="folderlist"',
             )) ?>

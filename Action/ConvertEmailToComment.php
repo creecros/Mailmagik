@@ -106,7 +106,7 @@ class ConvertEmailToComment extends Base
             if ($email->textHtml) {
                 $email->embedImageAttachments();
                 $message = $converter->convert($email->textHtml);
-                error_log('message:'.$message,0);
+                error_log('message:'.$message, 0);
             } else {
                 $message = $email->textPlain;
             }

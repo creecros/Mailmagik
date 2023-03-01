@@ -8,8 +8,8 @@
     </p>
 
     <?= $this->modal->confirmButtons(
-        'EmailViewController',
-        'delete',
-        array('plugin' => 'mailmagik', 'task_id' => $task_id, 'mail_id' => $mail_id)
-    ) ?>
+    'EmailViewController',
+    'delete',
+    array('plugin' => 'mailmagik', 'task_id' => $task_id, 'mail_id' => $mail_id)
+) ?>
 </div>
