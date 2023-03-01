@@ -165,6 +165,30 @@ class EmailViewController extends BaseController
             $this->logger->error($e->getMessage());
         }
     }
+    
+    /**
+     * Send attachments to a task
+     *
+     * @access public
+     */
+    public function sendAttachmentsToTask($task_id, $attachments)
+    {
+
+            foreach ($attachments as $attachment) {
+                    if (!file_exists(DATA_DIR . '/files/mailmagik/tmp/' . $task_id)) {
+                        mkdir(DATA_DIR . '/files/mailmagik/tmp/' . $task_id, 0755, true);
+                    }
+                    $tmp_name = DATA_DIR . '/files/mailmagik/tmp/' . $task_id . '/' . $attachment->name;
+                    $attachment->setFilePath($tmp_name);
+                    if (!file_exists($tmp_name)) {
+                        $attachment->saveToDisk();
+                    }
+                    $file = file_get_contents($tmp_name);
+                    $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
+                    unlink($tmp_name);
+            }
+            
+    }
 
     /**
      * Email delete
@@ -184,6 +208,54 @@ class EmailViewController extends BaseController
         }
         $this->view($task_id);
     }
+    
+    /**
+     * Confirm delete
+     *
+     * @access public
+     */
+    public function confirmDelete()
+    {
+        $mail_id =  $this->request->getIntegerParam('mail_id');
+        $task_id =  $this->request->getIntegerParam('task_id');
+
+        $this->response->html($this->template->render('mailmagik:task_emails/delete', array(
+            'task_id' => $task_id,
+            'mail_id' => $mail_id,
+        )));
+    }
+    
+    /**
+     * Confirm convert to task
+     *
+     * @access public
+     */
+    public function confirmConvertToTask()
+    {
+        $mail_id =  $this->request->getIntegerParam('mail_id');
+        $task_id =  $this->request->getIntegerParam('task_id');
+
+        $this->response->html($this->template->render('mailmagik:task_emails/convert_task', array(
+            'task_id' => $task_id,
+            'mail_id' => $mail_id,
+        )));
+    }
+
+    /**
+     * Confirm convert to comment
+     *
+     * @access public
+     */
+    public function confirmConvertToComment()
+    {
+        $mail_id =  $this->request->getIntegerParam('mail_id');
+        $task_id =  $this->request->getIntegerParam('task_id');
+
+        $this->response->html($this->template->render('mailmagik:task_emails/convert_comment', array(
+            'task_id' => $task_id,
+            'mail_id' => $mail_id,
+        )));
+    }
 
     /**
      * Convert Task Email to Task Butoon
@@ -193,6 +265,7 @@ class EmailViewController extends BaseController
     public function convertToTask()
     {
         $converter = new HtmlConverter();
+        $values = $this->request->getValues();
         $mail_id =  $this->request->getIntegerParam('mail_id');
         $task_id =  $this->request->getIntegerParam('task_id');
         $task = $this->getTask();
@@ -229,21 +302,8 @@ class EmailViewController extends BaseController
                 'description' => isset($message) ? $message : '',
             ));
 
-            if (!empty($email->getAttachments())) {
-                $attachments = $email->getAttachments();
-                foreach ($attachments as $attachment) {
-                    if (!file_exists(DATA_DIR . '/files/mailmagik/tmp/' . $task_id)) {
-                        mkdir(DATA_DIR . '/files/mailmagik/tmp/' . $task_id, 0755, true);
-                    }
-                    $tmp_name = DATA_DIR . '/files/mailmagik/tmp/' . $task_id . '/' . $attachment->name;
-                    $attachment->setFilePath($tmp_name);
-                    if (!file_exists($tmp_name)) {
-                        $attachment->saveToDisk();
-                    }
-                    $file = file_get_contents($tmp_name);
-                    $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
-                    unlink($tmp_name);
-                }
+            if (!empty($email->getAttachments()) && $values['mailmagik_include_files'] == 1) {
+                $this->sendAttachmentsToTask($task_id, $email->getAttachments());
             }
 
             $this->helper->mailHelper->processMessage($mailbox, $mail_id);
@@ -261,6 +321,7 @@ class EmailViewController extends BaseController
     {
         $converter = new HtmlConverter();
         $user = $this->getUser();
+        $params = $this->request->getValues();
         $mail_id =  $this->request->getIntegerParam('mail_id');
         $task_id =  $this->request->getIntegerParam('task_id');
         $task = $this->getTask();
@@ -278,7 +339,7 @@ class EmailViewController extends BaseController
             $date = $email->date;
 
             if ($email->textHtml) {
-                //$email->embedImageAttachments();
+                $email->embedImageAttachments();
                 $message = $converter->convert($email->textHtml);
             } else {
                 $message = $email->textPlain;
@@ -307,6 +368,11 @@ class EmailViewController extends BaseController
             );
 
             $comment_id = $this->commentModel->create($values);
+            
+            if (!empty($email->getAttachments()) && $params['mailmagik_include_files'] == 1) {
+                $this->sendAttachmentsToTask($task_id, $email->getAttachments());
+            }
+            
             $task_id = $task_id . '#comment-' . $comment_id;
             $this->helper->mailHelper->processMessage($mailbox, $mail_id);
 

@@ -15,9 +15,9 @@
                 <div class="avatar avatar-48 avatar-left"><div class="avatar-letter" style="background-color: #5d5d5d" title="test" role="img" aria-label="test">?</div></div>
             <?php endif ?>
             <span class="" style="font-style: italic"><?= $this->dt->datetime(strtotime($email['date'])) ?></span>
-            <span class="" style="float: right"><?= $this->url->icon('trash', '', 'EmailViewController', 'delete', array('plugin' => 'mailmagik', 'mail_id' => $email['mail_id'], 'task_id' => $email['task_id'])) ?></span>
-            <span class="" style="float: right"><?= $this->url->icon('tasks', '', 'EmailViewController', 'convertToTask', array('plugin' => 'mailmagik', 'mail_id' => $email['mail_id'], 'task_id' => $email['task_id'])) ?></span>
-            <span class="" style="float: right"><?= $this->url->icon('comment', '', 'EmailViewController', 'convertToComment', array('plugin' => 'mailmagik', 'mail_id' => $email['mail_id'], 'task_id' => $email['task_id'])) ?></span>
+            <span class="" style="float: right"><?= $this->modal->confirm('trash', '', 'EmailViewController', 'confirmDelete', array('plugin' => 'mailmagik', 'mail_id' => $email['mail_id'], 'task_id' => $email['task_id'])) ?></span>
+            <span class="" style="float: right"><?= $this->modal->confirm('tasks', '', 'EmailViewController', 'confirmConvertToTask', array('plugin' => 'mailmagik', 'mail_id' => $email['mail_id'], 'task_id' => $email['task_id'])) ?></span>
+            <span class="" style="float: right"><?= $this->modal->confirm('comment', '', 'EmailViewController', 'confirmConvertToComment', array('plugin' => 'mailmagik', 'mail_id' => $email['mail_id'], 'task_id' => $email['task_id'])) ?></span>
             <br>
             <strong><?= $email['from_name'] . ' &lt;' . $email['from_email'] . '&gt;' ?></strong>
             <br>
