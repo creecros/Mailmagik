@@ -20,6 +20,8 @@ class Plugin extends Base
         $this->initConfig(array(
             'mailmagik_taskemail_pref' => '1',
             'mailmagik_pref' => '2',
+            'mailmagik_include_files_tasks' => '1',
+            'mailmagik_include_files_comments' => '0',
         ));
 
         // Helper

@@ -157,7 +157,7 @@ class ConvertEmailToTask extends Base
 
                     $this->taskModificationModel->update($values, false);
 
-                    if (!empty($email->getAttachments())) {
+                    if (!empty($email->getAttachments()) && $this->configModel->get('mailmagik_include_files_tasks', '1') == 1) {
                         $attachments = $email->getAttachments();
                         foreach ($attachments as $attachment) {
                             if (!file_exists(DATA_DIR . '/files/mailmagik/tmp/' . $task_id)) {
