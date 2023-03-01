@@ -264,7 +264,7 @@ class EmailViewController extends BaseController
      */
     public function convertToTask()
     {
-        $converter = new HtmlConverter();
+        $converter = new HtmlConverter(array('strip_tags' => true));
         $values = $this->request->getValues();
         $mail_id =  $this->request->getIntegerParam('mail_id');
         $task_id =  $this->request->getIntegerParam('task_id');
@@ -288,7 +288,6 @@ class EmailViewController extends BaseController
             } else {
                 $message = $email->textPlain;
             }
-            $message = $email->textPlain;
 
             if ($email->hasAttachments()) {
                 $has_attach = 'y';
@@ -319,7 +318,7 @@ class EmailViewController extends BaseController
      */
     public function convertToComment()
     {
-        $converter = new HtmlConverter();
+        $converter = new HtmlConverter(array('strip_tags' => true));
         $user = $this->getUser();
         $params = $this->request->getValues();
         $mail_id =  $this->request->getIntegerParam('mail_id');
@@ -344,7 +343,7 @@ class EmailViewController extends BaseController
             } else {
                 $message = $email->textPlain;
             }
-            $message = $email->textPlain;
+
             $from_email = $email->fromAddress;
 
             if ($email->hasAttachments()) {

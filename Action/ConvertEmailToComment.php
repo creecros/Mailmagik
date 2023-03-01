@@ -79,7 +79,7 @@ class ConvertEmailToComment extends Base
 
     public function doAction(array $data)
     {
-        $converter = new HtmlConverter();
+        $converter = new HtmlConverter(array('strip_tags' => true));
         $project = $this->projectModel->getById($data['project_id']);
         $emails = array();
 
@@ -106,10 +106,10 @@ class ConvertEmailToComment extends Base
             if ($email->textHtml) {
                 $email->embedImageAttachments();
                 $message = $converter->convert($email->textHtml);
+                error_log('message:'.$message,0);
             } else {
                 $message = $email->textPlain;
             }
-            $message = $email->textPlain;
 
 
             if ($email->hasAttachments()) {
