@@ -99,7 +99,6 @@ class ConvertEmailToTask extends Base
             $from_name = (isset($email->fromName)) ? $email->fromName : $email->fromAddress;
             $from_email = $email->fromAddress;
             $project_id = $this->helper->mailHelper->getItemId($email, self::PREFIX);
-            error_log('$project_id='.$project_id,0);
             $subject = $email->subject;
             $message_id = $email->messageId;
             $date = $email->date;
@@ -152,7 +151,7 @@ class ConvertEmailToTask extends Base
 
                     // More attributes from subject
 
-                    (is_null($subject)) ?: $values = array_merge($values, $this->scanSubject($subject, $project_id));
+                    (is_null($subject)) ?: $values = array_merge($values, $this->scanSubject($subject, $project_id, self::PREFIX));
 
                     $this->taskModificationModel->update($values, false);
 
@@ -186,7 +185,7 @@ class ConvertEmailToTask extends Base
      * @param   stting  project_id
      * @return  array   extracted attributes
      */
-    private function scanSubject(string &$subject, string $project_id): array
+    private function scanSubject(string &$subject, string $project_id, string $prefix): array
     {
         $attributes = array();
 
