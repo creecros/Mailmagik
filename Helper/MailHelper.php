@@ -20,13 +20,14 @@ class MailHelper extends Base
     {
         $server = $this->configModel->get('mailmagik_server', '');
         $port = $this->configModel->get('mailmagik_port', '');
+        $proto = $this->configModel->get('mailmagik_proto', '');
         $user = $this->configModel->get('mailmagik_user', '');
         $password = $this->configModel->get('mailmagik_password', '');
         $folder = $this->configModel->get('mailmagik_folder', 'INBOX');
 
         if ($server != '' && $port != '' && $user != '' && $password != '') {
             return new PhpImap\Mailbox(
-                '{' . $server . ':' . $port . '/imap/ssl}' . $folder,
+                '{' . $server . ':' . $port . $proto . '}' . $folder,
                 $user,
                 $password,
                 false

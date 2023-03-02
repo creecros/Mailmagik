@@ -152,7 +152,7 @@ class ConvertEmailToTask extends Base
 
                     // More attributes from subject
 
-                    $values = array_merge($values, $this->scanSubject($subject, $project_id));
+                    (is_null($subject)) ?: $values = array_merge($values, $this->scanSubject($subject, $project_id));
 
                     $this->taskModificationModel->update($values, false);
 

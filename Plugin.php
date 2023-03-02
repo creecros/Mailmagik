@@ -22,6 +22,7 @@ class Plugin extends Base
             'mailmagik_pref' => '2',
             'mailmagik_include_files_tasks' => '1',
             'mailmagik_include_files_comments' => '0',
+            'mailmagik_proto' => '/imap/ssl',
         ));
 
         // Helper
@@ -68,7 +69,7 @@ class Plugin extends Base
 
     public function getPluginVersion()
     {
-        return '1.2.1';
+        return '1.2.2';
     }
 
     public function getPluginDescription()
