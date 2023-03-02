@@ -95,7 +95,7 @@ class MailHelper extends Base
                     ($match[1] > 0 && $match[1] != null)
                     ? $id = $match[1] 
                     : $id = null;
-                    $email->subject = str_replace($prefix . $match[1], '', $email->subject);
+                    $email->subject = str_replace($prefix . $match[1] . ' ', '', $email->subject);
                 }
         }
 
