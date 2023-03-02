@@ -91,8 +91,9 @@ class MailHelper extends Base
             }
         } else {
                 if ($email->subject != null) {
-                    (strpos($email->subject, $prefix) == 0)
-                    ? $id = trim(str_replace($prefix, '', $email->subject), ' ')
+                    preg_match('/'.$prefix.'(.*?) /', $email->subject, $match);
+                    ($match[1] > 0 && $match[1] != null)
+                    ? $id = $match[1] 
                     : $id = null;
                 }
         }
