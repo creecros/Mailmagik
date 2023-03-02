@@ -46,7 +46,13 @@ class MailHelper extends Base
      */
     public function getTaskMails(&$mailbox, $prefix)
     {
-        return $this->searchMailbox($mailbox, 'TO ' . $prefix);
+        $method = $this->configModel->get('mailmagik_parse_via', '1');
+        
+        if ($method == 2) {
+            return $this->searchMailbox($mailbox, 'SUBJECT "'. $prefix . '"');
+        } else {
+            return $this->searchMailbox($mailbox, 'TO ' . $prefix);
+        }
     }
 
     /**
