@@ -96,10 +96,10 @@ class ConvertEmailToTask extends Base
                 $mail_id, // ID of the email, you want to get
                 false // Do NOT mark emails as seen
             );
-
             $from_name = (isset($email->fromName)) ? $email->fromName : $email->fromAddress;
             $from_email = $email->fromAddress;
             $project_id = $this->helper->mailHelper->getItemId($email, self::PREFIX);
+            error_log('$project_id='.$project_id,0);
             $subject = $email->subject;
             $message_id = $email->messageId;
             $date = $email->date;

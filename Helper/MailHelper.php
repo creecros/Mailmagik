@@ -58,7 +58,13 @@ class MailHelper extends Base
      */
     public function getUnseenMails(&$mailbox, $prefix)
     {
-        return $this->searchMailbox($mailbox, 'UNSEEN TO ' . $prefix);
+        $method = $this->configModel->get('mailmagik_parse_via', '1');
+        
+        if ($method == 2) {
+            return $this->searchMailbox($mailbox, 'UNSEEN SUBJECT "'. $prefix . '"');
+        } else {
+            return $this->searchMailbox($mailbox, 'UNSEEN TO ' . $prefix);
+        }
     }
 
     /**
@@ -72,14 +78,23 @@ class MailHelper extends Base
     {
         $i = 0;
         $id = null;
-
-        foreach ($email->to as $to) {
-            if ($i === 0 && $to != null) {
-                (strpos($to, $prefix) == 0)
-                ? $id = trim(str_replace($prefix, '', $to), ' ')
-                : $id = null;
+        $method = $this->configModel->get('mailmagik_parse_via', '1');
+        
+        if ($method == 1) {
+            foreach ($email->to as $to) {
+                if ($i === 0 && $to != null) {
+                    (strpos($to, $prefix) == 0)
+                    ? $id = trim(str_replace($prefix, '', $to), ' ')
+                    : $id = null;
+                }
+                $i++;
             }
-            $i++;
+        } else {
+                if ($email->subject != null) {
+                    (strpos($email->subject, $prefix) == 0)
+                    ? $id = trim(str_replace($prefix, '', $email->subject), ' ')
+                    : $id = null;
+                }
         }
 
         return $id;

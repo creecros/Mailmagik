@@ -44,10 +44,17 @@
                 <?= $this->form->hidden('mailmagik_taskemail_pref', array('mailmagik_taskemail_pref' => '0')) ?>
                 <?= $this->form->checkbox('mailmagik_taskemail_pref', t('Enable'), 1, $values['mailmagik_taskemail_pref']) ?>
             </fieldset>
+            <fieldset>
+                <legend><?= t('Parsing options') ?></legend>
+                <?= $this->form->radios('mailmagik_parse_via', array(
+                    '1' => t('Parse from the "TO" field'),
+                    '2' => t('Parse from the "SUBJECT" field'),
+                ), $values) ?>
             <br/>
             <p class="form-help"><?= t('To automatically convert emails to tasks or comment, you will need to add the Automatic Actions to each project you wish for it to work in.') ?></p>
-            <p class="form-help"><?= t('Example of sending an email directly to a task: ') ?> <a href="mailto:Task#1<myimapemail@email.com>"><?= t('Task#1<myimapemail@email.com>') ?></a></p>
-            <p class="form-help"><?= t('Example of sending an email to automatically convert to a task within a project: ') ?> <a href="mailto:Project#1<myimapemail@email.com>"><?= t('Project#1<myimapemail@email.com>') ?></a></p>
-            <p class="form-help"><?= t('Example of sending an email to automatically convert to a comment within a task: ') ?> <a href="mailto:CommentOnTask#1<myimapemail@email.com>"><?= t('CommentOnTask#1<myimapemail@email.com>') ?></a></p>
+            <p class="form-help"><?= t('Example of sending an email directly to a task parsed via the "TO" field: ') ?> <a href="mailto:Task#1<myimapemail@email.com>"><?= t('Task#1<myimapemail@email.com>') ?></a><?= t(' if parsed via "SUBJECT", Task#1 should be in the subject') ?></p>
+            <p class="form-help"><?= t('Example of sending an email to automatically convert to a task within a project parsed via "TO" field: ') ?> <a href="mailto:Project#1<myimapemail@email.com>"><?= t('Project#1<myimapemail@email.com>') ?></a><?= t(' if parsed via "SUBJECT", Project#1 should be in the subject') ?></p>
+            <p class="form-help"><?= t('Example of sending an email to automatically convert to a comment within a task parsed via "TO" field: ') ?> <a href="mailto:CommentOnTask#1<myimapemail@email.com>"><?= t('CommentOnTask#1<myimapemail@email.com>') ?></a><?= t(' if parsed via "SUBJECT", CommentOnTask#1 should be in the subject') ?></p>
+            </fieldset>
 
     </fieldset>
