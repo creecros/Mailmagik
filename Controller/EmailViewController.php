@@ -275,7 +275,7 @@ class EmailViewController extends BaseController
                 $mail_id,
                 false
             );
-
+            $this->parseSubject($email, self::PREFIX);
             $subject = $email->subject;
             $message_id = $email->messageId;
             $date = $email->date;
@@ -330,7 +330,7 @@ class EmailViewController extends BaseController
                 $mail_id,
                 false
             );
-
+            $this->parseSubject($email, self::PREFIX);
             $subject = $email->subject;
             $message_id = $email->messageId;
             $date = $email->date;
@@ -375,6 +375,12 @@ class EmailViewController extends BaseController
 
             $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id), false, '', '', $this->request->isAjax(), 'comment-'.$comment_id));
         }
+    }
+    
+    private function parseSubject(&$email, string $prefix) 
+    {
+        preg_match('/'.$prefix.'(.*?) /', $email->subject, $match);
+        $email->subject = str_replace($prefix . $match[1] . ' ', '', $email->subject);
     }
 
     private function flashFailure()
