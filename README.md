@@ -39,14 +39,21 @@ This plugin allows you to connect Kanboard directly to an IMAP server. Once conn
 * * * * * cd /var/www/app && ./cli mailmagik:fetchmail
 ```
 
-
-Once installed, setup in config:
+Once installed, setup in `Settings > Email settings`:
 <br>
-<img src="https://user-images.githubusercontent.com/26339368/216668816-a7a00c09-7594-4fda-8d7a-2f59dc6c0028.png" alt="image" width="50%">
+<img src="https://user-images.githubusercontent.com/26339368/222557692-e0e3366d-7f2c-4044-909e-c20ecd0c509d.png" alt="image" width="65%">
 
-- Example to send an email directly to a task: `Task#1<myemail@email.com>`
-- Example to send an email to a project for task conversion: `Project#1<myemail@email.com>`
-- Example to send an email to a task for comment conversion: `CommentOnTask#1<myemail@email.com>`
+The **Parse Option** allows you to choose how to parse the actions, using the `TO:` field or the `SUBJECT:` field
+
+When using the `TO:` option, see examples below:
+- to send an email directly to a task: `Task#1<myemail@email.com>`
+- to send an email to a project for task conversion: `Project#1<myemail@email.com>`
+- to send an email to a task for comment conversion: `CommentOnTask#1<myemail@email.com>`
+
+When using the `SUBJECT:` option, see examples below:
+- to send an email directly to a task: `Task#1 ` should appear at the start of the Subject
+- to send an email to a project for task conversion: `Project#1 ` should appear at the start of the Subject
+- to send an email to a task for comment conversion: `CommentOnTask#1 ` should appear at the start of the Subject
 
 Emails sent to a task can be found in the Task uner the "Task Email" icon on the sidebar:
 <br>
