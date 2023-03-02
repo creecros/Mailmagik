@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+
+- [#24](https://github.com/creecros/Mailmagik/discussions/24) Added advanced option for auth/security flags
+
+### Fixed
+
+- [#26](https://github.com/creecros/Mailmagik/issues/26) Fix fatal error when subject is null
 ---
 
 ## [1.1.0](https://github.com/creecros/Mailmagik/releases/tag/1.1.0) - 2023-02-09
