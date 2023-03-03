@@ -150,14 +150,22 @@ class MailHelper extends Base
      */
     public function getFolders(): array
     {
+        $error = false;
         $mailbox = $this->login();
-        $values = array();
-        if ($mailbox != false) {
-            $folders = $mailbox->getMailboxes('*');
-            foreach ($folders as $folder) {
-                array_push($values, $folder['shortpath']);
-            }
+        try {
+            $mail_ids = $mailbox->searchMailbox('ALL');
+        } catch(PhpImap\Exceptions\ConnectionException $ex) {
+            $error = true;
+        } catch (PhpImap\Exceptions\Exception $ex) {
+            $error = true;
         }
+        $values = array();
+            if ($mailbox != false && $error == false) {
+                $folders = $mailbox->getMailboxes('*');
+                foreach ($folders as $folder) {
+                    array_push($values, $folder['shortpath']);
+                }
+            }
 
         return $values;
     }
