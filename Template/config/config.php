@@ -5,7 +5,7 @@
 
             <?= $this->form->label(t('Port'), 'mailmagik_port') ?>
             <?= $this->form->text('mailmagik_port', $values, $errors, array('placeholder="993"')) ?>
-            
+
             <?= $this->form->label(t('Advanced settings'), 'mailmagik_proto') ?>
             <?= $this->form->text('mailmagik_proto', $values, $errors, array('placeholder="/imap/ssl"')) ?>
             <p class="form-help"><?= t('Advanced flag/settings for imap auth/security, default is /imap/ssl, see: ') ?> <a href="https://www.php.net/manual/en/function.imap-open.php" target="_blank">https://www.php.net/manual/en/function.imap-open.php</a><?= t(' for reference.') ?></p>
@@ -22,6 +22,7 @@
                 'list="folderlist"',
             )) ?>
             <datalist id='folderlist'>
+                <?php $folders = $this->helper->mailHelper->getFolders()  ?>
                 <?php foreach ($folders as $folder): ?>
                     <option><?= $this->text->e($folder) ?></option>
                 <?php endforeach ?>
