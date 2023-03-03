@@ -26,12 +26,25 @@ class MailHelper extends Base
         $folder = $this->configModel->get('mailmagik_folder', 'INBOX');
 
         if ($server != '' && $port != '' && $user != '' && $password != '') {
-            return new PhpImap\Mailbox(
+            $mailbox = new PhpImap\Mailbox(
                 '{' . $server . ':' . $port . $proto . '}' . $folder,
                 $user,
                 $password,
                 false
             );
+            try 
+            {
+                $mailbox->searchMailbox('ALL');
+            } catch(PhpImap\Exceptions\ConnectionException $ex) {
+                $error = true;
+            } catch (PhpImap\Exceptions\Exception $ex) {
+                $error = true;
+            }
+            if ($error) {
+                return false;
+            } else {
+                return $mailbox;
+            }
         } else {
             return false;
         }
@@ -150,17 +163,10 @@ class MailHelper extends Base
      */
     public function getFolders(): array
     {
-        $error = false;
         $mailbox = $this->login();
-        try {
-            $mail_ids = $mailbox->searchMailbox('ALL');
-        } catch(PhpImap\Exceptions\ConnectionException $ex) {
-            $error = true;
-        } catch (PhpImap\Exceptions\Exception $ex) {
-            $error = true;
-        }
+
         $values = array();
-            if ($mailbox != false && $error == false) {
+            if ($mailbox != false) {
                 $folders = $mailbox->getMailboxes('*');
                 foreach ($folders as $folder) {
                     array_push($values, $folder['shortpath']);
