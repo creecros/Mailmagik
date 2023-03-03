@@ -24,6 +24,7 @@ class MailHelper extends Base
         $user = $this->configModel->get('mailmagik_user', '');
         $password = $this->configModel->get('mailmagik_password', '');
         $folder = $this->configModel->get('mailmagik_folder', 'INBOX');
+        $error = false;
 
         if ($server != '' && $port != '' && $user != '' && $password != '') {
             $mailbox = new PhpImap\Mailbox(
