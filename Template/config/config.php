@@ -53,9 +53,9 @@
                 ), $values) ?>
             <br/>
             <p class="form-help"><?= t('To automatically convert emails to tasks or comment, you will need to add the Automatic Actions to each project you wish for it to work in.') ?></p>
-            <p class="form-help"><?= t('Example of sending an email directly to a task parsed via the "TO" field: ') ?> <a href="mailto:Task#1<myimapemail@email.com>"><?= t('Task#1<myimapemail@email.com>') ?></a><?= t(' if parsed via "SUBJECT", Task#1 should be in the subject') ?></p>
-            <p class="form-help"><?= t('Example of sending an email to automatically convert to a task within a project parsed via "TO" field: ') ?> <a href="mailto:Project#1<myimapemail@email.com>"><?= t('Project#1<myimapemail@email.com>') ?></a><?= t(' if parsed via "SUBJECT", Project#1 should be in the subject') ?></p>
-            <p class="form-help"><?= t('Example of sending an email to automatically convert to a comment within a task parsed via "TO" field: ') ?> <a href="mailto:CommentOnTask#1<myimapemail@email.com>"><?= t('CommentOnTask#1<myimapemail@email.com>') ?></a><?= t(' if parsed via "SUBJECT", CommentOnTask#1 should be in the subject') ?></p>
+            <p class="form-help"><?= t('Example of sending an email directly to a task parsed via the "TO" field: ') ?> <a href="mailto:Task#1<myimapemail@email.com>"><?= t('Task#1<myimapemail@email.com>') ?></a><?= t(' if parsed via "SUBJECT", [Task#1] should be in the subject') ?></p>
+            <p class="form-help"><?= t('Example of sending an email to automatically convert to a task within a project parsed via "TO" field: ') ?> <a href="mailto:Project#1<myimapemail@email.com>"><?= t('Project#1<myimapemail@email.com>') ?></a><?= t(' if parsed via "SUBJECT", [Project#1] should be in the subject') ?></p>
+            <p class="form-help"><?= t('Example of sending an email to automatically convert to a comment within a task parsed via "TO" field: ') ?> <a href="mailto:CommentOnTask#1<myimapemail@email.com>"><?= t('CommentOnTask#1<myimapemail@email.com>') ?></a><?= t(' if parsed via "SUBJECT", [CommentOnTask#1] should be in the subject') ?></p>
             </fieldset>
 
     </fieldset>

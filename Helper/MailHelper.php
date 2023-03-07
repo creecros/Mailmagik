@@ -63,7 +63,7 @@ class MailHelper extends Base
         $method = $this->configModel->get('mailmagik_parse_via', '1');
         
         if ($method == 2) {
-            return $this->searchMailbox($mailbox, 'SUBJECT "'. $prefix . '"');
+            return $this->searchMailbox($mailbox, 'SUBJECT "['. $prefix . '"');
         } else {
             return $this->searchMailbox($mailbox, 'TO ' . $prefix);
         }
@@ -111,11 +111,11 @@ class MailHelper extends Base
             }
         } else {
                 if ($email->subject != null) {
-                    preg_match('/'.$prefix.'(.*?) /', $email->subject, $match);
+                    preg_match('/'.$prefix.'(.*?)]/', $email->subject, $match);
                     ($match[1] > 0 && $match[1] != null)
                     ? $id = $match[1] 
                     : $id = null;
-                    $email->subject = str_replace($prefix . $match[1] . ' ', '', $email->subject);
+                    $email->subject = str_replace('['.$prefix . $match[1] . ']', '', $email->subject);
                 }
         }
 

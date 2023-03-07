@@ -51,9 +51,10 @@ When using the `TO:` option, see examples below:
 - to send an email to a task for comment conversion: `CommentOnTask#1<myemail@email.com>`
 
 When using the `SUBJECT:` option, see examples below:
-- to send an email directly to a task: `Task#1 ` should appear at the start of the Subject
-- to send an email to a project for task conversion: `Project#1 ` should appear at the start of the Subject
-- to send an email to a task for comment conversion: `CommentOnTask#1 ` should appear at the start of the Subject
+- to send an email directly to a task: `[Task#1] ` should appear at the start of the Subject
+- to send an email to a project for task conversion: `[Project#1] ` should appear at the start of the Subject
+- to send an email to a task for comment conversion: `[CommentOnTask#1] ` should appear at the start of the Subject
+- note: the action must be in brackets
 
 Emails sent to a task can be found in the Task uner the "Task Email" icon on the sidebar:
 <br>
@@ -145,3 +146,7 @@ plugins
 ```
 
 3.) Restart your server
+
+## Troubleshooting
+
+1. If you are getting `OP_READONLY` complaints about an undefined variable, then you are missing the php-imap requirement, install req, enable and restart server.

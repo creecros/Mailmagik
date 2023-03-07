@@ -383,7 +383,7 @@ class EmailViewController extends BaseController
 
     private function parseSubject($subject, string $prefix)
     {
-        return preg_replace('/' . $prefix . '\d{1,} /', '', $subject, 1);
+        return preg_replace('/\[' . $prefix . '\d{1,}\] /', '', $subject, 1);
     }
 
     private function flashFailure()
