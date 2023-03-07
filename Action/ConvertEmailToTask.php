@@ -214,6 +214,14 @@ class ConvertEmailToTask extends Base
                 $attributes = array_merge($attributes, array('category_id' => $category_id));
             }
         }
+        
+        // Column
+
+        if (($column_name = $this->extractColumn($subject)) != null) {
+            if (($column_id = $this->columnModel->getColumnIdByTitle($project_id, $column_name)) > 0) {
+                $attributes = array_merge($attributes, array('column_id' => $column_id));
+            }
+        }
 
         // Tags
 
@@ -268,6 +276,18 @@ class ConvertEmailToTask extends Base
     private function extractCategory(&$subject)
     {
         return $this->extractAttribute($subject, 'c');
+    }
+    
+    /**
+     * Extract the column from subject
+     *
+     * @param   string  subject
+     * @return  string  extracted column
+     * @return  NULL    no category found
+     */
+    private function extractColumn(&$subject)
+    {
+        return $this->extractAttribute($subject, 'col');
     }
 
     /**

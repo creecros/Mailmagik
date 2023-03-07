@@ -72,6 +72,7 @@ When sending emails for automatic Task Conversion, MailMagik can parse the subje
 |p:n |Set priority n
 |c:name| Set category 'name'
 |t:name| Add tag 'name', may be repeated. Non-existing tags will be created, beware of typos.
+|col:name| Set column 'name' to bypass default column
 
 A subject line containing
 
