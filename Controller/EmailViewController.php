@@ -279,8 +279,8 @@ class EmailViewController extends BaseController
                 $mail_id,
                 false
             );
-            $this->parseSubject($email, self::PREFIX);
-            $subject = $email->subject;
+
+            $subject = $this->parseSubject($email->subject, self::PREFIX);
             $message_id = $email->messageId;
             $date = $email->date;
 
@@ -334,8 +334,8 @@ class EmailViewController extends BaseController
                 $mail_id,
                 false
             );
-            $this->parseSubject($email, self::PREFIX);
-            $subject = $email->subject;
+
+            $subject = $this->parseSubject($email->subject, self::PREFIX);
             $message_id = $email->messageId;
             $date = $email->date;
 
@@ -381,10 +381,9 @@ class EmailViewController extends BaseController
         }
     }
 
-    private function parseSubject(&$email, string $prefix)
+    private function parseSubject($subject, string $prefix)
     {
-        preg_match('/'.$prefix.'(.*?) /', $email->subject, $match);
-        $email->subject = str_replace($prefix . $match[1] . ' ', '', $email->subject);
+        return preg_replace('/' . $prefix . '\d{1,} /', '', $subject, 1);
     }
 
     private function flashFailure()
