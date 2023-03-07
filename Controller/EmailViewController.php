@@ -204,7 +204,11 @@ class EmailViewController extends BaseController
             $mailbox->deleteMail($mail_id);
             $mailbox->disconnect();
         }
-        $this->view($task_id);
+
+        $this->response->redirect($this->helper->url->to('EmailViewController', 'view', array(
+            'plugin' => 'mailmagik',
+            'task_id' => $task_id,
+        )));
     }
 
     /**
@@ -376,8 +380,8 @@ class EmailViewController extends BaseController
             $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id), false, '', '', $this->request->isAjax(), 'comment-'.$comment_id));
         }
     }
-    
-    private function parseSubject(&$email, string $prefix) 
+
+    private function parseSubject(&$email, string $prefix)
     {
         preg_match('/'.$prefix.'(.*?) /', $email->subject, $match);
         $email->subject = str_replace($prefix . $match[1] . ' ', '', $email->subject);
