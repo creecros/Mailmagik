@@ -9,11 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- [#24](https://github.com/creecros/Mailmagik/discussions/24) Added advanced option for auth/security flags
-
 ### Fixed
 
-- [#26](https://github.com/creecros/Mailmagik/issues/26) Fix fatal error when subject is null
 ---
 
 ## [1.1.0](https://github.com/creecros/Mailmagik/releases/tag/1.1.0) - 2023-02-09
@@ -43,3 +40,15 @@ Initial release
 
 ### Fixes
 - (https://github.com/creecros/Mailmagik/commit/7e467019d03905700a2494a516ab1a0f934c3664) Change HTML to markdown conversion and remove erroneuos code
+
+## [1.2.2](https://github.com/creecros/Mailmagik/releases/tag/1.2.2) - 2023-03-08
+
+### Added
+
+- [#24](https://github.com/creecros/Mailmagik/discussions/24) Added advanced option for auth/security flags
+- [#25](https://github.com/creecros/Mailmagik/discussions/25) Added Subject parsing options for actions
+- [#25](https://github.com/creecros/Mailmagik/discussions/25) Added ability to set column name during parse
+
+### Fixed
+
+- [#26](https://github.com/creecros/Mailmagik/issues/26) Fix fatal error when subject is null
