@@ -35,7 +35,7 @@ Initial release
 ## [1.2.1](https://github.com/creecros/Mailmagik/releases/tag/1.2.1) - 2023-03-01
 
 ### Added
--  [#21](https://github.com/creecros/Mailmagik/issues/21) Allow the use of IMAP-subfolders 
+-  [#21](https://github.com/creecros/Mailmagik/issues/21) Allow the use of IMAP-subfolders
 -  [#22](https://github.com/creecros/Mailmagik/issues/22) Added options for including or not including attachments when convert to tasks or comments, both in task emails or automatic conversion
 
 ### Fixes
@@ -52,3 +52,9 @@ Initial release
 ### Fixed
 
 - [#26](https://github.com/creecros/Mailmagik/issues/26) Fix fatal error when subject is null
+
+## [1.2.3](https://github.com/creecros/Mailmagik/releases/tag/1.2.3) - 2023-07-18
+
+### Fixed
+
+- [#34](https://github.com/creecros/Mailmagik/issues/34) Mailmagik broken due to Symfony updates

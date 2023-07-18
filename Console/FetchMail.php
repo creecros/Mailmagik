@@ -19,14 +19,17 @@ class FetchMail extends BaseCommand
             ->setDescription('Trigger scheduler event for all tasks');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         foreach ($this->getProjectIds() as $project_id) {
-            $this->dispatcher->dispatch(
-                self::EVENT,
-                new GenericEvent(array('project_id' => $project_id))
-            );
+            $event = new GenericEvent(array('project_id' => $project_id));
+            if (APP_VERSION < '1.2.31') {
+                $this->dispatcher->dispatch(self::EVENT, $event);
+            } else {
+                $this->dispatcher->dispatch($event, self::EVENT);
+            }
         }
+        return 0;
     }
 
     private function getProjectIds()

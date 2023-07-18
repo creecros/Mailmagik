@@ -18,11 +18,12 @@ class Command extends \Kanboard\Console\BaseCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $command = 'projects:fetchmail';
 
         $job = $this->getApplication()->find($command);
         $job->run(new ArrayInput(array('command' => $command)), new NullOutput());
+        return 0;
     }
 }
