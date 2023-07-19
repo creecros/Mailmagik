@@ -58,3 +58,7 @@ Initial release
 ### Fixed
 
 - [#34](https://github.com/creecros/Mailmagik/issues/34) Mailmagik broken due to Symfony updates
+
+### Added
+
+- [README] Hint that the sender of the mail must be a member of the targeted project.
