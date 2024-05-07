@@ -11,6 +11,7 @@ use Kanboard\Model\ProjectModel;
 use Kanboard\Model\TaskExternalLinkModel;
 use Kanboard\Model\TaskFileModel;
 use Kanboard\Model\TaskFinderModel;
+use Kanboard\Model\TaskModificationModel;
 use Kanboard\Model\TaskLinkModel;
 use Kanboard\Model\TaskTagModel;
 use Kanboard\Model\UserMetadataModel;
@@ -120,6 +121,8 @@ class EmailViewController extends BaseController
                         'has_attach' => $has_attach,
                         'attachments' => $attached_files,
                         'user' => $connect_to_user,
+                        'parsed_taskdata' => $this->helper->mailHelper->parseData($email->textPlain),
+                        'parsed_metadata' => $this->helper->mailHelper->parseData($email->textPlain,'$@','@$'),
                     );
                 }
 
@@ -166,6 +169,53 @@ class EmailViewController extends BaseController
         }
     }
 
+    /**
+     * Update Task Data
+     *
+     * @access public
+     */
+    public function update_taskdata()
+    {
+        $task = $this->getTask();
+        $key =  $this->request->getStringParam('key');
+        $value =  $this->request->getStringParam('value');
+        error_log('key:'.$key.' value:'.$value,0);
+
+        
+        $is_metamagik = $this->request->getIntegerParam('is_metamagik');
+        
+        if (($key == 'owner_id' && !ctype_digit($value) && !$is_metamagik) || ($key == 'creator_id' && !ctype_digit($value) && !$is_metamagik)) {
+            if (!$this->userModel->getByEmail($value)) {
+                        $value = null;
+                    } else {
+                        $value = $this->userModel->getByEmail($value)['id'];
+                    }
+        }  
+        
+        if ($is_metamagik) { $key = 'metamagikkey_' . $key; }
+        
+        error_log('key:'.$key.' value:'.$value,0);
+        
+        $values = array(
+            $key => $value,
+            );
+    
+        $values['id'] = $task['id'];
+        $values['project_id'] = $task['project_id'];
+        $values['title'] = $task['title'];
+
+        list($valid, $errors) = $this->taskValidator->validateModification($values);
+
+        if ($valid) {
+            $this->taskModificationModel->update($values);
+            $this->flash->success(t('Task updated successfully.'));
+            $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task['id'])), true);
+        } else {
+            $this->flash->failure(t('Unable to update your task. This field is either not a valid field or the value is invalid.'));
+            $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task['id'])), true);
+        }
+    
+    }
     /**
      * Send attachments to a task
      *

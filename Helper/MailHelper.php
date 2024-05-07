@@ -176,4 +176,33 @@ class MailHelper extends Base
 
         return $values;
     }
+    
+
+    /**
+     * Parse message for data to feed DB
+     *
+     * @return array
+     */
+     
+     // https://onlinephp.io/c/f1721
+     
+    public function parseData($message, $start = '&@', $end = '@&')
+    {
+        $values = array();
+        
+        $pattern = sprintf(
+                '/%s(.*?)%s/',
+                preg_quote($start),
+                preg_quote($end)
+            );
+        
+        preg_match_all($pattern, $message, $matches);
+        foreach ($matches[1] as $match) {
+        	 $values[] = array(
+        	    strtok($match, '=') => str_replace('"',"",substr($match, strpos($match, "=") + 1)),
+        	);
+    	};
+
+        return $values;
+    }
 }
