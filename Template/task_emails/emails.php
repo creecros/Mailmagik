@@ -42,7 +42,7 @@
                 </div>
             </details>
             <?php endif ?>
-            <?php if (!empty($email['parsed_taskdata'])): ?>
+            <?php if (!(empty($email['parsed_taskdata']) && empty($email['parsed_metadata']))): ?>
             <details class="accordion-section closed">
                 <summary class="accordion-title"><?= t('Updatedable Task Data') ?></summary>
                 <div class="accordion-content taskdata" id="taskdata">
