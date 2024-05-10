@@ -28,6 +28,7 @@ class EmailViewController extends BaseController
 {
     public const PREFIX = 'Task#';
     public const FILES_DIR = '/files/mailmagik/files/';
+    public const KEY_PREFIX = 'metamagikkey_';
 
     public function load()
     {
@@ -181,25 +182,27 @@ class EmailViewController extends BaseController
         $value =  $this->request->getStringParam('value');
         error_log('key:'.$key.' value:'.$value,0);
 
-        
         $is_metamagik = $this->request->getIntegerParam('is_metamagik');
-        
+
         if (($key == 'owner_id' && !ctype_digit($value) && !$is_metamagik) || ($key == 'creator_id' && !ctype_digit($value) && !$is_metamagik)) {
             if (!$this->userModel->getByEmail($value)) {
-                        $value = null;
-                    } else {
-                        $value = $this->userModel->getByEmail($value)['id'];
-                    }
-        }  
-        
-        if ($is_metamagik) { $key = 'metamagikkey_' . $key; }
-        
+                $value = null;
+            } else {
+                $value = $this->userModel->getByEmail($value)['id'];
+            }
+        }
+
+        if ($is_metamagik) { $key = self::KEY_PREFIX . $key; }
+
         error_log('key:'.$key.' value:'.$value,0);
-        
-        $values = array(
-            $key => $value,
-            );
-    
+
+        $values = array();
+        $meta_fields = $this->taskMetadataModel->getAll($task['id']);
+        foreach ($meta_fields as $k => $v) {
+            $values[self::KEY_PREFIX . $k ] = $v;
+        }
+
+        $values[$key] = $value;
         $values['id'] = $task['id'];
         $values['project_id'] = $task['project_id'];
         $values['title'] = $task['title'];
@@ -214,7 +217,7 @@ class EmailViewController extends BaseController
             $this->flash->failure(t('Unable to update your task. This field is either not a valid field or the value is invalid.'));
             $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task['id'])), true);
         }
-    
+
     }
     /**
      * Send attachments to a task
