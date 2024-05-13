@@ -184,7 +184,7 @@ class EmailViewController extends BaseController
             $this->flash->failure(t('Unable to update your task. This field is either not a valid field or the value is invalid.'));
         }
 
-        $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $values['id'])), true);
+        $this->response->redirect($this->helper->url->to('EmailViewController', 'view', array('plugin' => 'mailmagik','task_id' => $values['id'])), true);
     }
 
     /**
