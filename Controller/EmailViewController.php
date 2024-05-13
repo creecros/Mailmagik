@@ -18,6 +18,7 @@ use Kanboard\Model\UserMetadataModel;
 use Kanboard\Model\UserModel;
 use League\HTMLToMarkdown\HtmlConverter;
 use PhpImap;
+use PicoDb\SQLException;
 
 /**
  * Mailmagik Plugin
@@ -178,8 +179,15 @@ class EmailViewController extends BaseController
         list($valid, $errors) = $this->taskValidator->validateModification($values);
 
         if ($valid) {
-            $this->taskModificationModel->update($values);
-            $this->flash->success(t('Task updated successfully.'));
+            try {
+                if ($this->taskModificationModel->update($values)) {
+                    $this->flash->success(t('Task updated successfully.'));
+                } else {
+                    $this->flash->failure('Database: Duplicate key error');
+                }
+            } catch (SQLException $e) {
+                $this->flash->failure($e->getMessage());
+            }
         } else {
             $this->flash->failure(t('Unable to update your task. This field is either not a valid field or the value is invalid.'));
         }
