@@ -237,20 +237,33 @@ class EmailViewController extends BaseController
         unset($updates['csrf_token']);
         $task = $this->getTask();
 
+        $allmeta = $this->getAllMeta($task['id']);
+
         foreach ($updates as $key => &$value) {
             // NOTE Meta keys are already prefixed with self::KEY_PREFIX
             if (($key == 'owner_id' && !ctype_digit($value)) || ($key == 'creator_id' && !ctype_digit($value))) {
                 $value = $this->getUserId($value);
+                continue;
+            }
+
+            if (strpos($key, self::KEY_PREFIX) === 0 && !array_key_exists($key, $allmeta)) {
+                $unknown_meta = $key;
+                break;
             }
         }
         unset($value);
 
-        $values = array_merge($this->getAllMeta($task['id']), $updates);
-        $values['id'] = $task['id'];
-        $values['project_id'] = $task['project_id'];
-        $values['title'] = $task['title'];
+        if (!isset($unknown_meta)) {
+            $values = array_merge($this->getAllMeta($task['id']), $updates);
+            $values['id'] = $task['id'];
+            $values['project_id'] = $task['project_id'];
+            $values['title'] = $task['title'];
 
-        $this->update_apply($values);
+            $this->update_apply($values);
+        } else {
+            $this->flash->failure(t('Invalid Meta-Field: ') . $unknown_meta);
+            $this->response->redirect($this->helper->url->to('EmailViewController', 'view', array('plugin' => 'mailmagik','task_id' => $task['id'])), true);
+        }
     }
 
     /**
@@ -278,12 +291,17 @@ class EmailViewController extends BaseController
         error_log('key:'.$key.' value:'.$value,0);
 
         $values = $this->getAllMeta($task['id']);
-        $values[$key] = $value;
-        $values['id'] = $task['id'];
-        $values['project_id'] = $task['project_id'];
-        $values['title'] = $task['title'];
+        if (array_key_exists($key, $values)) {
+            $values[$key] = $value;
+            $values['id'] = $task['id'];
+            $values['project_id'] = $task['project_id'];
+            $values['title'] = $task['title'];
 
-        $this->update_apply($values);
+            $this->update_apply($values);
+        } else {
+            $this->flash->failure(t('Invalid Meta-Field: ') . $key);
+            $this->response->redirect($this->helper->url->to('EmailViewController', 'view', array('plugin' => 'mailmagik','task_id' => $task['id'])), true);
+        }
     }
 
     /**
