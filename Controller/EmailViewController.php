@@ -171,6 +171,81 @@ class EmailViewController extends BaseController
     }
 
     /**
+     * Apply the update
+     */
+    private function update_apply($values)
+    {
+        list($valid, $errors) = $this->taskValidator->validateModification($values);
+
+        if ($valid) {
+            $this->taskModificationModel->update($values);
+            $this->flash->success(t('Task updated successfully.'));
+        } else {
+            $this->flash->failure(t('Unable to update your task. This field is either not a valid field or the value is invalid.'));
+        }
+
+        $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $values['id'])), true);
+    }
+
+    /**
+     * Get user_id from email.
+     * @param string $email
+     * @return int user_id | null
+     */
+    private function getUserId($email)
+    {
+        if (!$this->userModel->getByEmail($email)) {
+            return null;
+        } else {
+            return $this->userModel->getByEmail($email)['id'];
+        }
+    }
+
+    /**
+     * Get all relevant meta fields with its values.
+     * The keys get prefixed.
+     *
+     * @access private
+     * @return array
+     */
+    private function getAllMeta($task_id)
+    {
+        $values = array();
+        $meta_fields = $this->taskMetadataModel->getAll($task_id);
+        foreach ($meta_fields as $key => $value) {
+            $values[self::KEY_PREFIX . $key ] = $value;
+        }
+        return $values;
+    }
+
+    /**
+     * Update Task Data Bulk
+     *
+     * @access public
+     */
+    public function update_taskdata_bulk()
+    {
+        $updates= $this->request->getValues();
+        unset($updates['csrf_token']);
+        $task = $this->getTask();
+
+        foreach ($updates as $key => &$value) {
+            // NOTE Meta keys are already prefixed with self::KEY_PREFIX
+            if (($key == 'owner_id' && !ctype_digit($value)) || ($key == 'creator_id' && !ctype_digit($value))) {
+                $value = $this->getUserId($value);
+            }
+        }
+        unset($value);
+
+        $values = array_merge($this->getAllMeta($task['id']), $updates);
+        $values['id'] = $task['id'];
+        $values['project_id'] = $task['project_id'];
+        $values['title'] = $task['title'];
+
+        $this->update_apply($values);
+    }
+
+    /**
      * Update Task Data
      *
      * @access public
@@ -184,41 +259,25 @@ class EmailViewController extends BaseController
 
         $is_metamagik = $this->request->getIntegerParam('is_metamagik');
 
-        if (($key == 'owner_id' && !ctype_digit($value) && !$is_metamagik) || ($key == 'creator_id' && !ctype_digit($value) && !$is_metamagik)) {
-            if (!$this->userModel->getByEmail($value)) {
-                $value = null;
-            } else {
-                $value = $this->userModel->getByEmail($value)['id'];
+        if ($is_metamagik) {
+            $key = self::KEY_PREFIX . $key;
+        } else {
+            if (($key == 'owner_id' && !ctype_digit($value)) || ($key == 'creator_id' && !ctype_digit($value))) {
+                $value = $this->getUserId($value);
             }
         }
 
-        if ($is_metamagik) { $key = self::KEY_PREFIX . $key; }
-
         error_log('key:'.$key.' value:'.$value,0);
 
-        $values = array();
-        $meta_fields = $this->taskMetadataModel->getAll($task['id']);
-        foreach ($meta_fields as $k => $v) {
-            $values[self::KEY_PREFIX . $k ] = $v;
-        }
-
+        $values = $this->getAllMeta($task['id']);
         $values[$key] = $value;
         $values['id'] = $task['id'];
         $values['project_id'] = $task['project_id'];
         $values['title'] = $task['title'];
 
-        list($valid, $errors) = $this->taskValidator->validateModification($values);
-
-        if ($valid) {
-            $this->taskModificationModel->update($values);
-            $this->flash->success(t('Task updated successfully.'));
-            $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task['id'])), true);
-        } else {
-            $this->flash->failure(t('Unable to update your task. This field is either not a valid field or the value is invalid.'));
-            $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task['id'])), true);
-        }
-
+        $this->update_apply($values);
     }
+
     /**
      * Send attachments to a task
      *
