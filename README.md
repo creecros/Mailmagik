@@ -83,6 +83,8 @@ A subject line containing
 
 will create a priority 3 task named "Test", category "SQL", start on Feb 20 and due on Feb 28.
 
+Attribute values for category, column and tags must be quoted, in case they consist of multiple words. Quoting chars can be any of "", '', ‘’, “”, «» and „“. Example: col:"Work in progress".
+
 ![image](https://user-images.githubusercontent.com/2079289/217609719-e1fecea5-0616-4cb7-be31-7db6f2c418c1.png)
 
 The plugin can also **parse the email body** for task attributes.

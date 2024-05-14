@@ -20,6 +20,10 @@ class ConvertEmailToTask extends Base
 {
     public const PREFIX = 'Project#';
 
+    // Allowed qoute chars for open and close
+    public $QO = "\"'“‘«„";
+    public $QC = "\"'”’»“";
+
     /**
      * Get automatic action description
      *
@@ -206,31 +210,11 @@ class ConvertEmailToTask extends Base
             $attributes = array_merge($attributes, array('priority' => intval($priority)));
         }
 
-        // Category
+        // Category, column and tags
 
-        if (($category_name = $this->extractCategory($subject)) != null) {
-            if (($category_id = $this->categoryModel->getIdByName($project_id, $category_name)) > 0) {
-                $attributes = array_merge($attributes, array('category_id' => $category_id));
-            }
-        }
+        $attributes = array_merge($attributes, $this->extractQuotables($subject, $project_id));
 
-        // Column
-
-        if (($column_name = $this->extractColumn($subject)) != null) {
-            if (($column_id = $this->columnModel->getColumnIdByTitle($project_id, $column_name)) > 0) {
-                $attributes = array_merge($attributes, array('column_id' => $column_id));
-            }
-        }
-
-        // Tags
-
-        if (count($tags= $this->extractTags($subject)) > 0) {
-            $attributes = array_merge($attributes, array('tags' => $tags));
-        }
-
-        // Subject was probably modified, due to attribute stuff removal.
-
-        if (count($attributes) > 0) {
+        if (!empty($attributes)) {
             $attributes = array_merge($attributes, array('title' => trim($subject, ' ')));
         }
 
@@ -242,8 +226,7 @@ class ConvertEmailToTask extends Base
      *
      * @param   string  subject reference
      * @param   string  prefix, 'd' for due date, 's' for start date
-     * @return  string  extracted date, e.g. '2023-02-08'
-     * @return  NULL    no or no valid date found
+     * @return  string  extracted date, e.g. '2023-02-08' | null
      */
     private function extractDate(&$subject, $prefix)
     {
@@ -257,54 +240,11 @@ class ConvertEmailToTask extends Base
      * Extract the priority from subject
      *
      * @param   string  subject reference
-     * @return  string  extracted priority
-     * @return  NULL    no priority found
+     * @return  string  extracted priority | null
      */
     private function extractPriority(&$subject)
     {
         return $this->extractAttribute($subject, 'p');
-    }
-
-    /**
-     * Extract the category from subject
-     *
-     * @param   string  subject
-     * @return  string  extracted category
-     * @return  NULL    no category found
-     */
-    private function extractCategory(&$subject)
-    {
-        return $this->extractAttribute($subject, 'c');
-    }
-
-    /**
-     * Extract the column from subject
-     *
-     * @param   string  subject
-     * @return  string  extracted column
-     * @return  NULL    no category found
-     */
-    private function extractColumn(&$subject)
-    {
-        return $this->extractAttribute($subject, 'col');
-    }
-
-    /**
-     * Extract all tags from subject
-     *
-     * @param   string  subject
-     * @return  array   extracted tag names
-     * @return  NULL    no tags found
-     */
-    private function extractTags(&$subject)
-    {
-        $tags = array();
-
-        while (($tag = $this->extractAttribute($subject, 't')) != null) {
-            array_push($tags, $tag);
-        }
-
-        return $tags;
     }
 
     /**
@@ -331,5 +271,56 @@ class ConvertEmailToTask extends Base
         }
 
         return $attribute;
+    }
+
+    /**
+     * Extract attributes that may be multi word. This relates to Column,
+     * Category and Tags. A multi word atribute requires quoting with " or '.
+     * Single word without qouting is still OK.
+     *
+     * @param string $subject reference
+     * @param string $project_id
+     * @return array $attributes
+     */
+    private function extractQuotables(string &$subject, string $project_id) : array
+    {
+        $attributes = array();
+        $tags = array();
+        $pattern =  "/(c:|col:|t:)([$this->QO](?:\w{1,})(?: |\w{1,}){1,}(?:\w{1,})[$this->QC]|(?:\w{1,})(?:\w{1,}))/u";
+
+        do {
+            $matches = array();
+            if ($rc = preg_match($pattern, $subject, $matches)) {
+                switch ($matches[1]) {
+                    case 'col:':
+                        if (($column_id = $this->columnModel->getColumnIdByTitle($project_id, $this->cleanup($matches[2]))) > 0) {
+                            $attributes = array_merge($attributes, array('column_id' => $column_id));
+                        }
+                        break;
+                    case 'c:':
+                        if (($category_id = $this->categoryModel->getIdByName($project_id, $this->cleanup($matches[2]))) > 0) {
+                            $attributes = array_merge($attributes, array('category_id' => $category_id));
+                        }
+                        break;
+                    case 't:':
+                        $tags[] = $this->cleanup($matches[2]);
+                        break;
+                    default:
+                        break;
+                }
+                $subject = preg_filter($pattern, '', $subject, 1);
+            }
+        } while ($rc);
+
+        if (!empty($tags)) {
+            $attributes['tags'] = $tags;
+        }
+
+        return $attributes;
+    }
+
+    private function cleanup(string $match) : string
+    {
+        return trim($match, ' ' . $this->QO . $this->QC);
     }
 }

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- [#42](https://github.com/creecros/Mailmagik/issues/42) Subject parsing: Allow multi-word attribute values for columns, categories and tags, by quoting them with any of "", '', ‘’, “”, «» and „“.
+
 ### Changed
 
 - Reordered the CHANGELOG, the newest items are always on top.
