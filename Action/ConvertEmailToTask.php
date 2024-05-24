@@ -110,13 +110,6 @@ class ConvertEmailToTask extends Base
                 $message = $email->textPlain;
             }
 
-
-            if ($email->hasAttachments()) {
-                $has_attach = 'y';
-            } else {
-                $has_attach = 'n';
-            }
-
             if (!is_null($project_id) && intval($project_id) === intval($project['id'])) {
                 if (!$this->userModel->getByEmail($from_email)) {
                     $connect_to_user = null;
@@ -150,14 +143,22 @@ class ConvertEmailToTask extends Base
                         );
 
                     // More attributes from subject
-
+                    // FIXME parse Attrib from subject or body, optional
                     (is_null($subject)) ?: $values = array_merge($values, $this->scanSubject($subject, $project_id));
+
+                    $parsed_data = $this->helper->parsing->parseAllData($email->textPlain, $task_id);
+                    if (isset($parsed_data['title'])) {
+                        $parsed_data['title'] = $values['title'] . $parsed_data['title'];
+                    }
+                    $values = array_merge($values, $parsed_data);
 
                     $this->taskModificationModel->update($values, false);
 
                     if (!empty($email->getAttachments()) && $this->configModel->get('mailmagik_include_files_tasks', '1') == 1) {
                         $attachments = $email->getAttachments();
                         foreach ($attachments as $attachment) {
+                            // FIXME This is already done/checked im Plugin.php::Init
+                            // FIXME Create a const/define for the base path
                             if (!file_exists(DATA_DIR . '/files/mailmagik/tmp/' . $task_id)) {
                                 mkdir(DATA_DIR . '/files/mailmagik/tmp/' . $task_id, 0755, true);
                             }
@@ -182,7 +183,7 @@ class ConvertEmailToTask extends Base
      * Scan and extract task attributes from subject.
      *
      * @param   string  subject reference
-     * @param   stting  project_id
+     * @param   string  project_id
      * @return  array   extracted attributes
      */
     private function scanSubject(string &$subject, string $project_id): array
@@ -214,7 +215,7 @@ class ConvertEmailToTask extends Base
                 $attributes = array_merge($attributes, array('category_id' => $category_id));
             }
         }
-        
+
         // Column
 
         if (($column_name = $this->extractColumn($subject)) != null) {
@@ -277,7 +278,7 @@ class ConvertEmailToTask extends Base
     {
         return $this->extractAttribute($subject, 'c');
     }
-    
+
     /**
      * Extract the column from subject
      *

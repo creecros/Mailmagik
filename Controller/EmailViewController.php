@@ -11,11 +11,12 @@ use Kanboard\Model\ProjectModel;
 use Kanboard\Model\TaskExternalLinkModel;
 use Kanboard\Model\TaskFileModel;
 use Kanboard\Model\TaskFinderModel;
-use Kanboard\Model\TaskModificationModel;
 use Kanboard\Model\TaskLinkModel;
+use Kanboard\Model\TaskModificationModel;
 use Kanboard\Model\TaskTagModel;
 use Kanboard\Model\UserMetadataModel;
 use Kanboard\Model\UserModel;
+use Kanboard\Plugin\Mailmagik\Helper\ParsingHelper;
 use League\HTMLToMarkdown\HtmlConverter;
 use PhpImap;
 use PicoDb\SQLException;
@@ -29,7 +30,6 @@ class EmailViewController extends BaseController
 {
     public const PREFIX = 'Task#';
     public const FILES_DIR = '/files/mailmagik/files/';
-    public const KEY_PREFIX = 'metamagikkey_';
 
     public function load()
     {
@@ -80,6 +80,7 @@ class EmailViewController extends BaseController
                     $message = $email->textPlain;
                 }
 
+                // FIXME cleaner solution
                 if ($email->hasAttachments()) {
                     $has_attach = 'y';
                 } else {
@@ -123,8 +124,8 @@ class EmailViewController extends BaseController
                         'has_attach' => $has_attach,
                         'attachments' => $attached_files,
                         'user' => $connect_to_user,
-                        'parsed_taskdata' => $this->helper->mailHelper->parseData($email->textPlain),
-                        'parsed_metadata' => $this->helper->mailHelper->parseData($email->textPlain,'$@','@$'),
+                        'parsed_taskdata' => $this->helper->parsing->parseData($email->textPlain),
+                        'parsed_metadata' => $this->helper->parsing->parseData($email->textPlain, '$@', '@$'),
                     );
                 }
 
@@ -196,34 +197,22 @@ class EmailViewController extends BaseController
     }
 
     /**
-     * Get user_id from email.
-     * @param string $email
-     * @return int user_id | null
+     * Prepare ans apply the update.
      */
-    private function getUserId($email)
+    private function performUpdate(&$updates, &$task)
     {
-        if (!$this->userModel->getByEmail($email)) {
-            return null;
-        } else {
-            return $this->userModel->getByEmail($email)['id'];
-        }
-    }
+        [$valid, $denied_keys] = $this->helper->parsing->verifyData($updates, $task);
 
-    /**
-     * Get all relevant meta fields with its values.
-     * The keys get prefixed.
-     *
-     * @access private
-     * @return array
-     */
-    private function getAllMeta($task_id)
-    {
-        $values = array();
-        $meta_fields = $this->taskMetadataModel->getAll($task_id);
-        foreach ($meta_fields as $key => $value) {
-            $values[self::KEY_PREFIX . $key ] = $value;
+        if ($valid) {
+            $values = array_merge($this->helper->parsing->getAllMeta($task['id']), $updates);
+            $values['id'] = $task['id'];
+            $values['project_id'] = $task['project_id'];
+            $values['title'] = $task['title'];
+            $this->update_apply($values);
+        } else {
+            $this->flash->failure(t('The following keys are either invalid or not allowed: ') . implode(',', $denied_keys));
+            $this->response->redirect($this->helper->url->to('EmailViewController', 'view', array('plugin' => 'mailmagik','task_id' => $task['id'])), true);
         }
-        return $values;
     }
 
     /**
@@ -233,37 +222,11 @@ class EmailViewController extends BaseController
      */
     public function update_taskdata_bulk()
     {
+        $task = $this->getTask();
         $updates= $this->request->getValues();
         unset($updates['csrf_token']);
-        $task = $this->getTask();
 
-        $allmeta = $this->getAllMeta($task['id']);
-
-        foreach ($updates as $key => &$value) {
-            // NOTE Meta keys are already prefixed with self::KEY_PREFIX
-            if (($key == 'owner_id' && !ctype_digit($value)) || ($key == 'creator_id' && !ctype_digit($value))) {
-                $value = $this->getUserId($value);
-                continue;
-            }
-
-            if (strpos($key, self::KEY_PREFIX) === 0 && !array_key_exists($key, $allmeta)) {
-                $unknown_meta = $key;
-                break;
-            }
-        }
-        unset($value);
-
-        if (!isset($unknown_meta)) {
-            $values = array_merge($this->getAllMeta($task['id']), $updates);
-            $values['id'] = $task['id'];
-            $values['project_id'] = $task['project_id'];
-            $values['title'] = $task['title'];
-
-            $this->update_apply($values);
-        } else {
-            $this->flash->failure(t('Invalid Meta-Field: ') . $unknown_meta);
-            $this->response->redirect($this->helper->url->to('EmailViewController', 'view', array('plugin' => 'mailmagik','task_id' => $task['id'])), true);
-        }
+        $this->performUpdate($updates, $task);
     }
 
     /**
@@ -278,30 +241,17 @@ class EmailViewController extends BaseController
         $value =  $this->request->getStringParam('value');
         error_log('key:'.$key.' value:'.$value,0);
 
-        $is_metamagik = $this->request->getIntegerParam('is_metamagik');
-
-        if ($is_metamagik) {
-            $key = self::KEY_PREFIX . $key;
-        } else {
-            if (($key == 'owner_id' && !ctype_digit($value)) || ($key == 'creator_id' && !ctype_digit($value))) {
-                $value = $this->getUserId($value);
-            }
+        if ($this->request->getIntegerParam('is_metamagik')) {
+            $key = ParsingHelper::KEY_PREFIX . $key;
         }
 
         error_log('key:'.$key.' value:'.$value,0);
 
-        $values = $this->getAllMeta($task['id']);
-        if (array_key_exists($key, $values)) {
-            $values[$key] = $value;
-            $values['id'] = $task['id'];
-            $values['project_id'] = $task['project_id'];
-            $values['title'] = $task['title'];
+        $updates = array(
+            $key => $value,
+        );
 
-            $this->update_apply($values);
-        } else {
-            $this->flash->failure(t('Invalid Meta-Field: ') . $key);
-            $this->response->redirect($this->helper->url->to('EmailViewController', 'view', array('plugin' => 'mailmagik','task_id' => $task['id'])), true);
-        }
+        $this->performUpdate($updates, $task);
     }
 
     /**

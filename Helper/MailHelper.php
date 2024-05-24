@@ -33,7 +33,7 @@ class MailHelper extends Base
                 $password,
                 false
             );
-            try 
+            try
             {
                 $mailbox->searchMailbox('ALL');
             } catch(PhpImap\Exceptions\ConnectionException $ex) {
@@ -61,7 +61,7 @@ class MailHelper extends Base
     public function getTaskMails(&$mailbox, $prefix)
     {
         $method = $this->configModel->get('mailmagik_parse_via', '1');
-        
+
         if ($method == 2) {
             return $this->searchMailbox($mailbox, 'SUBJECT "['. $prefix . '"');
         } else {
@@ -79,7 +79,7 @@ class MailHelper extends Base
     public function getUnseenMails(&$mailbox, $prefix)
     {
         $method = $this->configModel->get('mailmagik_parse_via', '1');
-        
+
         if ($method == 2) {
             return $this->searchMailbox($mailbox, 'UNSEEN SUBJECT "'. $prefix . '"');
         } else {
@@ -99,7 +99,7 @@ class MailHelper extends Base
         $i = 0;
         $id = null;
         $method = $this->configModel->get('mailmagik_parse_via', '1');
-        
+
         if ($method == 1) {
             foreach ($email->to as $to) {
                 if ($i === 0 && $to != null) {
@@ -113,7 +113,7 @@ class MailHelper extends Base
                 if ($email->subject != null) {
                     preg_match('/'.$prefix.'(.*?)]/', $email->subject, $match);
                     ($match[1] > 0 && $match[1] != null)
-                    ? $id = $match[1] 
+                    ? $id = $match[1]
                     : $id = null;
                     $email->subject = str_replace('['.$prefix . $match[1] . ']', '', $email->subject);
                 }
@@ -173,35 +173,6 @@ class MailHelper extends Base
                     array_push($values, $folder['shortpath']);
                 }
             }
-
-        return $values;
-    }
-    
-
-    /**
-     * Parse message for data to feed DB
-     *
-     * @return array
-     */
-     
-     // https://onlinephp.io/c/f1721
-     
-    public function parseData($message, $start = '&@', $end = '@&')
-    {
-        $values = array();
-        
-        $pattern = sprintf(
-                '/%s(.*?)%s/',
-                preg_quote($start),
-                preg_quote($end)
-            );
-        
-        preg_match_all($pattern, $message, $matches);
-        foreach ($matches[1] as $match) {
-        	 $values[] = array(
-        	    strtok($match, '=') => str_replace('"',"",substr($match, strpos($match, "=") + 1)),
-        	);
-    	};
 
         return $values;
     }

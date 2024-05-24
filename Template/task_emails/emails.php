@@ -54,23 +54,19 @@
                                 'project_id' => $email['project_id'],)) ?> autocomplete='off'>
                             <?= $this->form->csrf() ?>
                             <?php $values = array() ?>
-                            <?php foreach ($email['parsed_taskdata'] as $parsed_taskdata): ?>
-                                <?php foreach ($parsed_taskdata as $key => $value): ?>
-                                    <li class="">
-                                        <?= $this->url->icon('upload', $key . ' = ' . $value, 'EmailViewController', 'update_taskdata', array('plugin' => 'mailmagik', 'key' => $key, 'value' => $value, 'task_id' => $email['task_id'], 'project_id' => $email['project_id'], 'is_metamagik' => '0')) ?>
-                                    </li>
-                                    <?php $values[$key] = $value ?>
-                                    <?= $this->form->hidden($key, $values) ?>
-                                <?php endforeach ?>
+                            <?php foreach ($email['parsed_taskdata'] as $key => $value): ?>
+                                <li class="">
+                                    <?= $this->url->icon('upload', $key . ' = ' . $value, 'EmailViewController', 'update_taskdata', array('plugin' => 'mailmagik', 'key' => $key, 'value' => $value, 'task_id' => $email['task_id'], 'project_id' => $email['project_id'], 'is_metamagik' => '0')) ?>
+                                </li>
+                                <?php $values[$key] = $value ?>
+                                <?= $this->form->hidden($key, $values) ?>
                             <?php endforeach ?>
-                            <?php foreach ($email['parsed_metadata'] as $parsed_metadata): ?>
-                                <?php foreach ($parsed_metadata as $key => $value): ?>
-                                    <li class="">
-                                        <?= $this->url->icon('upload', $key . ' = ' . $value, 'EmailViewController', 'update_taskdata', array('plugin' => 'mailmagik', 'key' => $key, 'value' => $value, 'task_id' => $email['task_id'], 'project_id' => $email['project_id'], 'is_metamagik' => '1')) ?>
-                                    </li>
-                                    <?php $key = 'metamagikkey_' . $key; $values[$key] = $value ?>
-                                    <?= $this->form->hidden($key, $values) ?>
-                                <?php endforeach ?>
+                            <?php foreach ($email['parsed_metadata'] as $key => $value): ?>
+                                <li class="">
+                                    <?= $this->url->icon('upload', $key . ' = ' . $value, 'EmailViewController', 'update_taskdata', array('plugin' => 'mailmagik', 'key' => $key, 'value' => $value, 'task_id' => $email['task_id'], 'project_id' => $email['project_id'], 'is_metamagik' => '1')) ?>
+                                </li>
+                                <?php $key = 'metamagikkey_' . $key; $values[$key] = $value ?>
+                                <?= $this->form->hidden($key, $values) ?>
                             <?php endforeach ?>
                             <div class="form-actions">
                                 <button type='submit' class='btn btn-blue'><?= t('Apply all') ?></button>

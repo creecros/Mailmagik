@@ -28,6 +28,7 @@ class Plugin extends Base
 
         // Helper
         $this->helper->register('mailHelper', '\Kanboard\Plugin\Mailmagik\Helper\MailHelper');
+        $this->helper->register('parsing', '\Kanboard\Plugin\Mailmagik\Helper\ParsingHelper');
 
         // Hooks
         $option = $this->configModel->get('mailmagik_taskemail_pref', '1');
