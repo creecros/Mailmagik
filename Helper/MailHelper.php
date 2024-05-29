@@ -123,16 +123,14 @@ class MailHelper extends Base
     }
 
     /**
-    * Delete mthe message or makk it as seen, according the settings.
+    * Delete the message or mark it as seen, according the settings.
     *
     * @param $mailbox ref
     * @param $mail_id
     */
-    public function processMessage(&$mailbox, $mail_id)
+    public function disposeMessage(&$mailbox, $mail_id)
     {
-        $option = $this->configModel->get('mailmagik_pref', '2');
-
-        if ($option == 2) {
+        if ($this->configModel->get('mailmagik_pref', '2') == 2) {
             $mailbox->markMailAsRead($mail_id);
         } else {
             $mailbox->deleteMail($mail_id);

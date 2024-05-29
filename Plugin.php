@@ -24,6 +24,8 @@ class Plugin extends Base
             'mailmagik_include_files_comments' => '0',
             'mailmagik_proto' => '/imap/ssl',
             'mailmagik_parse_via' => '1',
+            'mailmagik_parsing_enable' => '0',
+            'mailmagik_parsing_remove_data' => '0',
         ));
 
         // Helper

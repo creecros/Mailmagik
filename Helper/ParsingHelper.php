@@ -32,7 +32,18 @@ class ParsingHelper extends Base
                 str_replace('"',"",substr($match, strpos($match, "=") + 1));
         };
 
-        return $values;
+       return $values;
+    }
+
+    /**
+     * Remove all task data specs from message
+     *
+     * @param string $message
+     * @return string remaining message
+     */
+    public function removeTaskData(string $message) : string
+    {
+        return preg_replace('/[&$]@.*@[&$]/', '', $message);
     }
 
     /**
@@ -71,28 +82,33 @@ class ParsingHelper extends Base
 
     }
 
-    public function parseAllData(string &$message, $task_id) : array
+    public function parseAllData(string $message, $task_id) : array
     {
-        $uodates = array();
+        $updates = array();
 
         $parsed_taskdata = $this->helper->parsing->parseData($message);
         $parsed_metadata = $this->helper->parsing->parseData($message, '$@', '@$');
+
+        if ($this->configModel->get('mailmagik_parsing_remove_data', '1') == 1) {
+            $updates['description'] = $this->helper->parsing->removeTaskData($message);
+        } else {
+            $updates['description'] = $message;
+        }
 
         $prefixed_meta = array();
         foreach ($parsed_metadata as $key => $value) {
             $prefixed_meta[self::KEY_PREFIX . $key] = $value;
         }
 
-        $updates = array_merge($parsed_taskdata, $prefixed_meta);
+        $updates = array_merge($updates, $parsed_taskdata, $prefixed_meta);
         $task = $this->taskFinderModel->getById($task_id);
 
         [$valid, $denied_keys] = $this->helper->parsing->verifyData($updates, $task);
-
         $denied_keys =  str_replace(self::KEY_PREFIX,"",$denied_keys);
 
         return $valid ? $updates : array(
             'title' => " [Parsing Errors!]",
-            'description' => $task['description'] .= PHP_EOL . PHP_EOL .
+            'description' => $updates['description'] .= PHP_EOL . PHP_EOL .
                 t('Parsing Errors: The following keys are either invalid or not allowed: ') . PHP_EOL . PHP_EOL .
                 implode(', ', $denied_keys)
             );

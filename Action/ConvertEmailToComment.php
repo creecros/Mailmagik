@@ -166,7 +166,7 @@ class ConvertEmailToComment extends Base
                     }
                 }
 
-                $this->helper->mailHelper->processMessage($mailbox, $mail_id);
+                $this->helper->mailHelper->disposeMessage($mailbox, $mail_id);
             }
         }
     }

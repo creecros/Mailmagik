@@ -142,15 +142,21 @@ class ConvertEmailToTask extends Base
                         'creator_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
                         );
 
-                    // More attributes from subject
-                    // FIXME parse Attrib from subject or body, optional
+                    // Get attributes from subject
+
                     (is_null($subject)) ?: $values = array_merge($values, $this->scanSubject($subject, $project_id));
 
-                    $parsed_data = $this->helper->parsing->parseAllData($email->textPlain, $task_id);
-                    if (isset($parsed_data['title'])) {
-                        $parsed_data['title'] = $values['title'] . $parsed_data['title'];
+                    // Get attributes from message body
+
+                    if ($this->configModel->get('mailmagik_parsing_enable', '1') == 1) {
+                        $parsed_data = $this->helper->parsing->parseAllData($email->textPlain, $task_id);
+
+                        if (isset($parsed_data['title'])) {
+                            $parsed_data['title'] = $values['title'] . $parsed_data['title'];
+                        }
+
+                        $values = array_merge($values, $parsed_data);
                     }
-                    $values = array_merge($values, $parsed_data);
 
                     $this->taskModificationModel->update($values, false);
 
@@ -174,7 +180,7 @@ class ConvertEmailToTask extends Base
                     }
                 }
 
-                $this->helper->mailHelper->processMessage($mailbox, $mail_id);
+                $this->helper->mailHelper->disposeMessage($mailbox, $mail_id);
             }
         }
     }
