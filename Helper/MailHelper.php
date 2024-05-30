@@ -174,4 +174,38 @@ class MailHelper extends Base
 
         return $values;
     }
+
+    public function sendNotifyMail($from_email, $from_name, $toString, $task_id)
+    {
+        $this->emailClient->send(
+            $from_email, $from_name,
+            t('[Mailmagik] New task created with ID #') . $task_id,
+            $this->template->render('Mailmagik:notify/email', array(
+                'email' => $email,
+                'task_id' => $task_id,
+                'task_email' => $this->configModel->get('mailmagik_taskemail_pref', '1') == 1,
+                'mailto' => $this->buildMailtoLink($toString, $task_id),
+            ))
+        );
+    }
+
+    // FIXME Notice in case of parsing errors
+    private function buildMailtoLink($toString, $task_id)
+    {
+        $dest = explode(' ', $toString);
+        $email = $dest[count($dest) - 1];
+        $task = "Task#$task_id";
+
+        return $this->configModel->get('mailmagik_parse_via', '1') == 1
+            ? array(
+                // Address in TO
+                "<a href='mailto:$task $email'>$task</a>",
+                "<a href='mailto:CommentOn$task $email'>CommentOn$task</a>",
+            )
+            : array(
+                // Address in SUBJECT
+                "<a href='mailto:$toString?subject=[$task]'>$task</a>",
+                "<a href='mailto:$toString?subject=[CommentOn$task]'>CommentOn$task</a>",
+            );
+    }
 }
