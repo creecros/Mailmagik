@@ -151,17 +151,7 @@ class ConvertEmailToComment extends Base
                     if (!empty($email->getAttachments()) && $this->configModel->get('mailmagik_include_files_comments', '0') == 1) {
                         $attachments = $email->getAttachments();
                         foreach ($attachments as $attachment) {
-                            if (!file_exists(DATA_DIR . '/files/mailmagik/tmp/' . $task_id)) {
-                                mkdir(DATA_DIR . '/files/mailmagik/tmp/' . $task_id, 0755, true);
-                            }
-                            $tmp_name = DATA_DIR . '/files/mailmagik/tmp/' . $task_id . '/' . $attachment->name;
-                            $attachment->setFilePath($tmp_name);
-                            if (!file_exists($tmp_name)) {
-                                $attachment->saveToDisk();
-                            }
-                            $file = file_get_contents($tmp_name);
-                            $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
-                            unlink($tmp_name);
+                            $this->helper->mailHelper->saveAndUpload($task_id, $attachment);
                         }
                     }
                 }

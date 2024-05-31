@@ -189,7 +189,6 @@ class MailHelper extends Base
         );
     }
 
-    // FIXME Notice in case of parsing errors
     private function buildMailtoLink($toString, $task_id)
     {
         $dest = explode(' ', $toString);
@@ -207,5 +206,26 @@ class MailHelper extends Base
                 "<a href='mailto:$toString?subject=[$task]'>$task</a>",
                 "<a href='mailto:$toString?subject=[CommentOn$task]'>CommentOn$task</a>",
             );
+    }
+
+    private function mktempdir($task_id)
+    {
+        $tmpdir = MM_TMP_DIR . $task_id . '/';
+        if (!file_exists($tmpdir)) {
+            mkdir($tmpdir, MM_PERM, true);
+        }
+        return $tmpdir;
+    }
+
+    public function saveAndUpload($task_id, &$attachment)
+    {
+        $tmp_name =  $this->mktempdir($task_id) . $attachment->name;
+        $attachment->setFilePath($tmp_name);
+        if (!file_exists($tmp_name)) {
+            $attachment->saveToDisk();
+        }
+        $file = file_get_contents($tmp_name);
+        $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
+        unlink($tmp_name);
     }
 }

@@ -16,7 +16,6 @@ use Kanboard\Model\TaskModificationModel;
 use Kanboard\Model\TaskTagModel;
 use Kanboard\Model\UserMetadataModel;
 use Kanboard\Model\UserModel;
-use Kanboard\Plugin\Mailmagik\Helper\ParsingHelper;
 use League\HTMLToMarkdown\HtmlConverter;
 use PhpImap;
 use PicoDb\SQLException;
@@ -29,7 +28,6 @@ use PicoDb\SQLException;
 class EmailViewController extends BaseController
 {
     public const PREFIX = 'Task#';
-    public const FILES_DIR = '/files/mailmagik/files/';
 
     public function load()
     {
@@ -80,26 +78,20 @@ class EmailViewController extends BaseController
                     $message = $email->textPlain;
                 }
 
-                // FIXME cleaner solution
-                if ($email->hasAttachments()) {
-                    $has_attach = 'y';
-                } else {
-                    $has_attach = 'n';
-                }
-
                 $attached_files = array();
-
                 $images = array();
                 if (!is_null($task_id) && intval($task_id) === intval($task['id'])) {
                     if (!empty($email->getAttachments())) {
                         $attachments = $email->getAttachments();
+                        $att_dir = MM_FILES_DIR . $task['id'];
+                        if (!file_exists($att_dir)) {
+                            mkdir($att_dir, MM_PERM, true);
+                        }
                         foreach ($attachments as $attachment) {
                             $attached_files[] = $attachment->name;
-                            if (!file_exists(DATA_DIR . self::FILES_DIR . $task['id'])) {
-                                mkdir(DATA_DIR . self::FILES_DIR . $task['id'], 0755, true);
-                            }
-                            $attachment->setFilePath(DATA_DIR . self::FILES_DIR . $task['id'] . '/' . $attachment->name);
-                            if (!file_exists(DATA_DIR . self::FILES_DIR . $task['id'] . '/' . $attachment->name)) {
+                            $att_path = $att_dir . '/' . $attachment->name;
+                            $attachment->setFilePath($att_path);
+                            if (!file_exists($att_path)) {
                                 $attachment->saveToDisk();
                             }
                         }
@@ -121,7 +113,7 @@ class EmailViewController extends BaseController
                         'message_id' => $message_id,
                         'message' => $message,
                         'date' => $date,
-                        'has_attach' => $has_attach,
+                        'has_attach' => $email->hasAttachments() ? 'y' : 'n',
                         'attachments' => $attached_files,
                         'user' => $connect_to_user,
                         'parsed_taskdata' => $this->helper->parsing->parseData($email->textPlain),
@@ -155,7 +147,7 @@ class EmailViewController extends BaseController
         $name =  $this->request->getStringParam('name');
 
         try {
-            $file = DATA_DIR . self::FILES_DIR . $task_id . '/' . $name;
+            $file = MM_FILES_DIR . $task_id . '/' . $name;
             if (file_exists($file)) {
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/octet-stream');
@@ -242,7 +234,7 @@ class EmailViewController extends BaseController
         error_log('key:'.$key.' value:'.$value,0);
 
         if ($this->request->getIntegerParam('is_metamagik')) {
-            $key = ParsingHelper::KEY_PREFIX . $key;
+            $key = KEY_PREFIX . $key;
         }
 
         error_log('key:'.$key.' value:'.$value,0);
@@ -262,17 +254,7 @@ class EmailViewController extends BaseController
     public function sendAttachmentsToTask($task_id, $attachments)
     {
         foreach ($attachments as $attachment) {
-            if (!file_exists(DATA_DIR . '/files/mailmagik/tmp/' . $task_id)) {
-                mkdir(DATA_DIR . '/files/mailmagik/tmp/' . $task_id, 0755, true);
-            }
-            $tmp_name = DATA_DIR . '/files/mailmagik/tmp/' . $task_id . '/' . $attachment->name;
-            $attachment->setFilePath($tmp_name);
-            if (!file_exists($tmp_name)) {
-                $attachment->saveToDisk();
-            }
-            $file = file_get_contents($tmp_name);
-            $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
-            unlink($tmp_name);
+            $this->helper->mailHelper->saveandUpload($task_id, $attachment);
         }
     }
 
@@ -379,12 +361,6 @@ class EmailViewController extends BaseController
                 $message = $email->textPlain;
             }
 
-            if ($email->hasAttachments()) {
-                $has_attach = 'y';
-            } else {
-                $has_attach = 'n';
-            }
-
             $task_id = $this->taskCreationModel->create(array(
                 'project_id' => $task['project_id'],
                 'title' => $subject,
@@ -435,12 +411,6 @@ class EmailViewController extends BaseController
             }
 
             $from_email = $email->fromAddress;
-
-            if ($email->hasAttachments()) {
-                $has_attach = 'y';
-            } else {
-                $has_attach = 'n';
-            }
 
             if (!$this->userModel->getByEmail($from_email)) {
                 $connect_to_user = null;

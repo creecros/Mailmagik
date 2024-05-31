@@ -6,8 +6,6 @@ use Kanboard\Core\Base;
 
 class ParsingHelper extends Base
 {
-    public const KEY_PREFIX = 'metamagikkey_';
-
     /**
      * Parse message for data to feed DB
      *
@@ -57,13 +55,13 @@ class ParsingHelper extends Base
         $veto_keys = array();
 
         foreach ($updates as $key => &$value) {
-            // Meta keys are already prefixed with ParsingHelper::KEY_PREFIX
+            // Meta keys are already prefixed with KEY_PREFIX
             if (($key == 'owner_id' && !ctype_digit($value)) || ($key == 'creator_id' && !ctype_digit($value))) {
                 $value = $this->getUserId($value);
                 continue;
             }
 
-            if (strpos($key, ParsingHelper::KEY_PREFIX) === 0 ) {
+            if (strpos($key, KEY_PREFIX) === 0 ) {
                 if (!array_key_exists($key, $allmeta)) {
                     $veto_keys[] = $key;
                 }

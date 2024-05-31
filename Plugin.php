@@ -9,12 +9,14 @@ use Kanboard\Plugin\Mailmagik\Console\Command;
 use Kanboard\Plugin\Mailmagik\Console\FetchMail;
 use Kanboard\Plugin\Mailmagik\Helper\MailHelper;
 
+require_once('constants.php');
+
 class Plugin extends Base
 {
     public function initialize()
     {
-        if (!file_exists(DATA_DIR . '/files/mailmagik/files')) {
-            mkdir(DATA_DIR . '/files/mailmagik/files', 0755, true);
+        if (!file_exists(MM_FILES_DIR)) {
+            mkdir(MM_FILES_DIR, MM_PERM, true);
         }
 
         $this->initConfig(array(

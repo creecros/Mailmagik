@@ -1,5 +1,5 @@
 <p class="form-help"><?= t('To automatically convert emails to tasks or comment, you will need to add the Automatic Actions to each project you wish for it to work in.') ?></p>
-<p class="form-help"><?= t('Examples:') ?></p>
+<p class="form-help"><?= t('Examples, depending on your above settings:') ?></p>
 
 <div id='parse-to' >
     <p class="form-help">
