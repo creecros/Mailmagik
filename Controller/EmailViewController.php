@@ -374,7 +374,7 @@ class EmailViewController extends BaseController
             $this->helper->mailHelper->disposeMessage($mailbox, $mail_id);
         }
 
-        $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id), false, '', '', $this->request->isAjax()));
+        $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id)));
     }
 
     /**
@@ -432,10 +432,8 @@ class EmailViewController extends BaseController
                 $this->sendAttachmentsToTask($task_id, $email->getAttachments());
             }
 
-            $task_id = $task_id . '#comment-' . $comment_id;
             $this->helper->mailHelper->disposeMessage($mailbox, $mail_id);
-
-            $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id), false, '', '', $this->request->isAjax(), 'comment-'.$comment_id));
+            $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id)));
         }
     }
 
