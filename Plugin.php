@@ -53,7 +53,6 @@ class Plugin extends Base
         $this->actionManager->register(new ConvertEmailToComment($this->container));
 
         // Commandline: ./cli mailmagik:fetchmail
-        $this->cli->add(new Command($this->container));
         $this->cli->add(new FetchMail($this->container));
     }
 

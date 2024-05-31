@@ -15,8 +15,8 @@ class FetchMail extends BaseCommand
     protected function configure()
     {
         $this
-            ->setName('projects:fetchmail')
-            ->setDescription('Trigger scheduler event for all tasks');
+            ->setName(CMD_FETCHMAIL)
+            ->setDescription('Trigger Mailmagik mail fetching by automatic actions');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
