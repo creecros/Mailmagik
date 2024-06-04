@@ -177,11 +177,12 @@ class MailHelper extends Base
 
     public function sendNotifyMail($from_email, $from_name, $toString, $task_id)
     {
+        $project_name =  $this->projectModel->getById($this->taskFinderModel->getById($task_id)['project_id'])['name'];
+        $subject = e("[$project_name] Mailmagik created a new task with ID #$task_id");
         $this->emailClient->send(
-            $from_email, $from_name,
-            t('[Mailmagik] New task created with ID #') . $task_id,
-            $this->template->render('Mailmagik:notify/email', array(
-                'email' => $email,
+            $from_email, $from_name, $subject,
+            $this->template->render('Mailmagik:notification/email', array(
+                'email' => $from_email,
                 'task_id' => $task_id,
                 'task_email' => $this->configModel->get('mailmagik_taskemail_pref', '1') == 1,
                 'mailto' => $this->buildMailtoLink($toString, $task_id),

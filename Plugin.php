@@ -5,7 +5,6 @@ namespace Kanboard\Plugin\Mailmagik;
 use Kanboard\Core\Plugin\Base;
 use Kanboard\Plugin\Mailmagik\Action\ConvertEmailToComment;
 use Kanboard\Plugin\Mailmagik\Action\ConvertEmailToTask;
-use Kanboard\Plugin\Mailmagik\Console\Command;
 use Kanboard\Plugin\Mailmagik\Console\FetchMail;
 use Kanboard\Plugin\Mailmagik\Helper\MailHelper;
 
