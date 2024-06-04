@@ -5,12 +5,18 @@ namespace Kanboard\Plugin\Mailmagik\Console;
 use Kanboard\Console\BaseCommand;
 use Kanboard\Event\GenericEvent;
 use Kanboard\Plugin\Mailmagik\Helper\MailHelper;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class FetchMail extends BaseCommand
 {
     public const EVENT = MailHelper::EVENT_FETCHMAIL;
+
+    private $commands = array(
+        CMD_TASKMAILNOTIFY,
+    );
 
     protected function configure()
     {
@@ -21,6 +27,7 @@ class FetchMail extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        // Main job first: Trigger the actions EMailToTask & EMailToComment
         foreach ($this->getProjectIds() as $project_id) {
             $event = new GenericEvent(array('project_id' => $project_id));
             if (APP_VERSION < '1.2.31') {
@@ -29,6 +36,14 @@ class FetchMail extends BaseCommand
                 $this->dispatcher->dispatch($event, self::EVENT);
             }
         }
+
+        // Run additional stuff
+
+        foreach ($this->commands as $command) {
+            $job = $this->getApplication()->find($command);
+            $job->run(new ArrayInput(array('command' => $command)), new NullOutput());
+        }
+
         return 0;
     }
 

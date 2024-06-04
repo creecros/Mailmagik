@@ -165,12 +165,12 @@ class MailHelper extends Base
         $mailbox = $this->login();
 
         $values = array();
-            if ($mailbox != false) {
-                $folders = $mailbox->getMailboxes('*');
-                foreach ($folders as $folder) {
-                    array_push($values, $folder['shortpath']);
-                }
+        if ($mailbox != false) {
+            $folders = $mailbox->getMailboxes('*');
+            foreach ($folders as $folder) {
+                array_push($values, $folder['shortpath']);
             }
+        }
 
         return $values;
     }
@@ -228,5 +228,45 @@ class MailHelper extends Base
         $file = file_get_contents($tmp_name);
         $this->taskFileModel->uploadContent($task_id, $attachment->name, $file, false);
         unlink($tmp_name);
+		}
+
+    /**
+     * Check task-emails for notification.
+     */
+    public function checkMailBox()
+    {
+        $prefix = 'Task#';
+        $emails = array();
+
+        if (($mailbox = $this->helper->mailHelper->login()) == false) {
+            return $emails;
+        }
+
+        $mails_ids = $this->helper->mailHelper->getUnseenMails($mailbox, $prefix);
+
+        foreach ($mails_ids as $mail_id) {
+            // Get mail by $mail_id
+            $email = $mailbox->getMail(
+                $mail_id, // ID of the email, you want to get
+                false
+            );
+
+            $from_name = (isset($email->fromName)) ? $email->fromName : $email->fromAddress;
+
+            $emails[] = array(
+                'task_id' => $this->helper->mailHelper->getItemId($email, $prefix),
+                'email' => array(
+                    'subject' => trim($email->subject),
+                    'from' => "$from_name <$email->fromAddress>",
+                    'datetime' => substr($email->date, 0, 10) . ' ' . substr($email->date, 11, 5),
+                )
+            );
+
+            $mailbox->markMailAsRead($mail_id);
+        } // foreach
+
+        $emails = array_reverse($emails);
+
+        return $emails;
     }
 }

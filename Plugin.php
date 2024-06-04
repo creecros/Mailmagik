@@ -3,9 +3,11 @@
 namespace Kanboard\Plugin\Mailmagik;
 
 use Kanboard\Core\Plugin\Base;
+use Kanboard\Notification\MailNotification;
 use Kanboard\Plugin\Mailmagik\Action\ConvertEmailToComment;
 use Kanboard\Plugin\Mailmagik\Action\ConvertEmailToTask;
 use Kanboard\Plugin\Mailmagik\Console\FetchMail;
+use Kanboard\Plugin\Mailmagik\Console\TaskMailNotify;
 use Kanboard\Plugin\Mailmagik\Helper\MailHelper;
 
 require_once('constants.php');
@@ -43,7 +45,7 @@ class Plugin extends Base
         // Config hook
         $this->template->hook->attach('template:config:email', 'mailmagik:config/config');
 
-        //css
+        // Assets
         $this->hook->on('template:layout:css', array('template' => 'plugins/Mailmagik/Assets/css/mailmagik.css'));
         $this->hook->on('template:layout:js', array('template' => 'plugins/Mailmagik/Assets/js/mailmagik.js'));
 
@@ -53,6 +55,14 @@ class Plugin extends Base
 
         // Commandline: ./cli mailmagik:fetchmail
         $this->cli->add(new FetchMail($this->container));
+        $this->cli->add(new TaskMailNotify($this->container));
+
+        // Mailtype handler
+        $this->userNotificationTypeModel->setType(
+            MailNotification::TYPE,
+            t('Email'),
+            '\Kanboard\Plugin\Mailmagik\Notification\MailNotification'
+        );
     }
 
     public function onStartup()
@@ -83,6 +93,15 @@ class Plugin extends Base
     public function getPluginHomepage()
     {
         return 'https://github.com/creecros/mailmagik';
+    }
+
+    public function getClasses()
+    {
+        return array(
+            'Plugin\Mailmagik\Model' => array(
+                'NotificationModel',
+            )
+        );
     }
 
     private function initConfig(array $configs)
