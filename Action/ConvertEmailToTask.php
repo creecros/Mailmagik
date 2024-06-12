@@ -123,7 +123,7 @@ class ConvertEmailToTask extends Base
                 $user_in_project = false;
 
                 foreach ($project_users as $user) {
-                    if ($user['id'] = $connect_to_user['id']) {
+                    if ($connect_to_user && $connect_to_user['id'] == $user['id']) {
                         $user_in_project = true;
                         break;
                     }
