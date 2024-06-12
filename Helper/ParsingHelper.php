@@ -52,6 +52,7 @@ class ParsingHelper extends Base
     public function verifyData(&$updates, &$task)
     {
         $allmeta = $this->helper->parsing->getAllMeta($task['id']);  // With prefix
+        $project_id = $task['project_id'];
         $veto_keys = array();
 
         foreach ($updates as $key => &$value) {
@@ -60,6 +61,52 @@ class ParsingHelper extends Base
                 $value = $this->getUserId($value);
                 continue;
             }
+
+            // Column:
+            // column_id = <pos>|<name>
+
+            if ($key == 'column_id' ) {
+                if (ctype_digit($value)) {
+                    // Try as position, range 1...n
+                    $columns = $this->columnModel->getList($project_id);
+
+                    if (array_key_exists($value, $columns)) {
+                        $value = array_keys($columns)[$value - 1];
+                    } else {
+                        $veto_keys[] = $key;
+                    }
+
+                    continue;
+                } else {
+                    // Try as name
+                    $column_id = $this->columnModel->getColumnIdByTitle($project_id, $value);
+
+                    if ($column_id  > 0) {
+                        $value = $column_id;
+                    } else {
+                        $veto_keys[] = $key;
+                    }
+
+                    continue;
+                }
+
+                $veto_keys[] = $key;
+            } // column_id
+
+            // Category
+            // category_id = <name>
+
+            if ($key == 'category_id' ) {
+                $category_id = $this->categoryModel->getIdByName($project_id, $value);
+
+                if ($category_id  > 0) {
+                    $value = $category_id;
+                } else {
+                    $veto_keys[] = $key;
+                }
+
+                continue;
+            } // category_id
 
             if (strpos($key, KEY_PREFIX) === 0 ) {
                 if (!array_key_exists($key, $allmeta)) {
@@ -95,14 +142,14 @@ class ParsingHelper extends Base
 
         $prefixed_meta = array();
         foreach ($parsed_metadata as $key => $value) {
-            $prefixed_meta[self::KEY_PREFIX . $key] = $value;
+            $prefixed_meta[KEY_PREFIX . $key] = $value;
         }
 
         $updates = array_merge($updates, $parsed_taskdata, $prefixed_meta);
         $task = $this->taskFinderModel->getById($task_id);
 
-        [$valid, $denied_keys] = $this->helper->parsing->verifyData($updates, $task);
-        $denied_keys =  str_replace(self::KEY_PREFIX,"",$denied_keys);
+        [$valid, $denied_keys] = $this->verifyData($updates, $task);
+        $denied_keys =  str_replace(KEY_PREFIX, "", $denied_keys);
 
         return $valid ? $updates : array(
             'title' => " [Parsing Errors!]",
@@ -123,7 +170,7 @@ class ParsingHelper extends Base
         $values = array();
         $meta_fields = $this->taskMetadataModel->getAll($task_id);
         foreach ($meta_fields as $key => $value) {
-            $values[self::KEY_PREFIX . $key ] = $value;
+            $values[KEY_PREFIX . $key ] = $value;
         }
         return $values;
     }
