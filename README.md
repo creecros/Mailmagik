@@ -85,11 +85,27 @@ will create a priority 3 task named "Test", category "SQL", start on Feb 20 and 
 
 ![image](https://user-images.githubusercontent.com/2079289/217609719-e1fecea5-0616-4cb7-be31-7db6f2c418c1.png)
 
-**Plugin Authors:** 
+The plugin can also **parse the email body** for task attributes.
+Use the following syntax: Enclose the assignment with
+
+- _&@ @&_ for standard task attributes
+- _$@ @$_ for metamagik fields
+
+Examples:
+
+    &@category_id=foo bar@&
+    &@column_id=Done@&
+    &@priority=3@&
+
+    $@Custom_field="Lorem ipsum"@$
+
+Optionally, this assignments can be removed from email body after processing.
+
+**Plugin Authors:**
 - _[creecros](https://github.com/creecros)_
 - _[alfredbuehler](https://github.com/alfredbuehler)_
 
-**Collaborators and Contributors:** 
+**Collaborators and Contributors:**
 - _[aljawaid](https://github.com/aljawaid)_
 
 # Requirements
@@ -122,7 +138,7 @@ Run both commands
 ## Automatically
 
 1. If your Kanboard installation is configured to install from the app, simply find it in the plugins directory and choose install.
-2. Restart your server 
+2. Restart your server
 
 
 ## Manually
@@ -141,8 +157,8 @@ plugins
     ├── Template
     ├── vendor
     ├── LICENSE
-    ├── CHANGELOG.MD 
-    ├── Makefile 
+    ├── CHANGELOG.MD
+    ├── Makefile
     ├── Plugin.php   
     ├── README.md
     ├── composer.json

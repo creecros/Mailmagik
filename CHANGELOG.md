@@ -62,3 +62,11 @@ Initial release
 ### Added
 
 - [README] Hint that the sender of the mail must be a member of the targeted project.
+
+## [1.3.0](https://github.com/creecros/Mailmagik/releases/tag/1.3.0) - 2024-07-03
+
+### Added
+
+- Ability to automatically parse and apply task attribute- and meta-data from message body, for convert to task mails and task mails. This feature is optional.
+
+- Option to send notification email after creation. Please note that this is a temporary feature. It will be replaced by a more generic solution in the near future.
