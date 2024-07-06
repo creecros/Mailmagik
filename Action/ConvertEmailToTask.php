@@ -133,24 +133,25 @@ class ConvertEmailToTask extends Base
                     }
                 }
                 if ($user_in_project) {
+
+                    $values = array();
+
+                    // Get attributes from subject, cleanup subject
+
+                    (is_null($subject)) ?: $values = $this->scanSubject($subject, $project_id);
+
                     $task_id = $this->taskCreationModel->create(array(
                         'project_id' => $project_id,
                         'title' => $subject,
                         'description' => isset($message) ? $message : '',
                         'column_id' => $this->getParam('column_id'),
                         'color_id' => $this->getParam('color_id'),
+                        'creator_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
                     ));
 
-                    $values = array(
-                        'id' => $task_id,
-                        'creator_id' => is_null($connect_to_user) ? '' : $connect_to_user['id'],
-                        );
+                    // Parsed attributes
 
-                    // Get attributes from subject
-
-                    (is_null($subject)) ?: $values = array_merge($values, $this->scanSubject($subject, $project_id));
-
-                    // Get attributes from message body
+                    $values['id'] = $task_id;
 
                     if ($this->configModel->get('mailmagik_parsing_enable', '1') == 1) {
                         $parsed_data = $this->helper->parsing->parseAllData($email->textPlain, $task_id);
@@ -164,12 +165,16 @@ class ConvertEmailToTask extends Base
 
                     $this->taskModificationModel->update($values, false);
 
+                    // Attachments
+
                     if (!empty($email->getAttachments()) && $this->configModel->get('mailmagik_include_files_tasks', '1') == 1) {
                         $attachments = $email->getAttachments();
                         foreach ($attachments as $attachment) {
                             $this->helper->mailHelper->saveAndUpload($task_id, $attachment);
                         }
                     }
+
+                    // Notification
 
                     if ($this->configModel->get('mailmagik_task_notify', '0') == 1) {
                         $this->helper->mailHelper->sendNotifyMail($from_email, $from_name, $email->toString, $task_id);
