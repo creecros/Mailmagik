@@ -9,17 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-### Fixed
-
-- [#44](https://github.com/creecros/Mailmagik/issues/44) Task attributes are not removed from task email subject.
-
 ### Added
+
+- [#40](https://github.com/creecros/Mailmagik/issues/40) Send notification for incoming task emails. The mailbox is scanned by the regular mailmagik:fetchmail cron job.
 
 - [#42](https://github.com/creecros/Mailmagik/issues/42) Subject parsing: Allow multi-word attribute values for columns, categories and tags, by quoting them with any of "", '', ‘’, “”, «» and „“.
 
 ### Changed
 
+- Replaced the specific task creation mail by a generic notification. The mailto links are now integrated into the usual notification email for all created tasks. The former implementation did only notify the creator of the new task.
+
 - Reordered the CHANGELOG, the newest items are always on top.
+
+### Fixed
+
+- [#44](https://github.com/creecros/Mailmagik/issues/44) Task attributes are not removed from task email subject.
 
 ## [1.3.0](https://github.com/creecros/Mailmagik/releases/tag/1.3.0) - 2024-07-03
 

@@ -175,6 +175,48 @@ class MailHelper extends Base
         return $values;
     }
 
+    private function getDestAddress()
+    {
+        $mbox = $this->configModel->get('mailmagik_address', '');
+        return $mbox !== '' ? $mbox : $this->configModel->get('mailmagik_user', '');
+    }
+
+    public function buildMailtoLink($task_id)
+    {
+        $email = $this->getDestAddress();
+        $task = "Task#$task_id";
+
+        return $this->configModel->get('mailmagik_parse_via', '1') == '1'
+            ? array(
+                // Address in TO
+                "<a href='mailto:$task <$email>'>$task</a>",
+                "<a href='mailto:CommentOn$task <$email>'>CommentOn$task</a>",
+            )
+            : array(
+                // Address in SUBJECT
+                "<a href='mailto:$email?subject=[$task]'>$task</a>",
+                "<a href='mailto:$email?subject=[CommentOn$task]'>CommentOn$task</a>",
+            );
+    }
+
+    /**
+     * Check if the project has an ConvertEmailToComment action.
+     *
+     * @param int $project_id
+     * @return bool
+    */
+    public function commentingEnabled(int $project_id): bool
+    {
+        $task_comment = false;
+        foreach ($this->actionModel->getAllByProject($project_id) as $action) {
+            if (strstr($action['action_name'], 'ConvertEmailToComment')) {
+                $task_comment = true;
+                break;
+            }
+        }
+        return $task_comment;
+    }
+
     private function mktempdir($task_id)
     {
         $tmpdir = MM_TMP_DIR . $task_id . '/';

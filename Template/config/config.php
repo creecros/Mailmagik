@@ -1,8 +1,10 @@
 <fieldset class="mm-server-setup">
     <legend><?= t('Mailmagik') ?></legend>
+    <?= $this->form->label(t('Email address'), 'mailmagik_address') ?>
+    <?= $this->form->email('mailmagik_address', $values, $errors, array('placeholder="me@somewhere.tld"')) ?>
+    <p class="form-help"><?= t('Address of Mailmagik mailbox. If not set, the Username is taken.') ?></p>
     <fieldset>
         <legend><?= t('Server') ?></legend>
-
         <?= $this->form->label(t('IMAP server address'), 'mailmagik_server') ?>
         <?= $this->form->text('mailmagik_server', $values, $errors, array('placeholder="imap.gmail.com"')) ?>
 
