@@ -71,13 +71,6 @@
             'values'  => $values,
         )) ?>
 
-        <?= $this->render($checkbox, array(
-            'label'   => t('Send notification email after creation.'),
-            'name'    => 'mailmagik_task_notify',
-            'default' => '0',
-            'values'  => $values,
-        )) ?>
-
         <br/>
         <p><strong><?= t('Comments') ?></strong></p>
 
