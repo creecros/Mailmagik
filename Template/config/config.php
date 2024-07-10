@@ -2,7 +2,7 @@
     <legend><?= t('Mailmagik') ?></legend>
     <?= $this->form->label(t('Email address'), 'mailmagik_address') ?>
     <?= $this->form->email('mailmagik_address', $values, $errors, array('placeholder="me@somewhere.tld"')) ?>
-    <p class="form-help"><?= t('Address of Mailmagik mailbox. If not set, the Username is taken.') ?></p>
+    <p class="form-help"><?= t('Address of Mailmagik mailbox. If not set, the Username below is taken.') ?></p>
     <fieldset>
         <legend><?= t('Server') ?></legend>
         <?= $this->form->label(t('IMAP server address'), 'mailmagik_server') ?>
@@ -10,6 +10,10 @@
 
         <?= $this->form->label(t('Port'), 'mailmagik_port') ?>
         <?= $this->form->text('mailmagik_port', $values, $errors, array('placeholder="993"')) ?>
+
+        <?= $this->form->label(t('Encoding'), 'mailmagik_encoding') ?>
+        <?= $this->form->select('mailmagik_encoding', $this->helper->mailHelper->getSupportedEncodings(), $values, $errors) ?>
+        <p class="form-help"><?= t('Select US-ASCII for Exchange IMAP or outlook.com.') ?>
 
         <?= $this->form->label(t('Advanced settings'), 'mailmagik_proto') ?>
         <?= $this->form->text('mailmagik_proto', $values, $errors, array('placeholder="/imap/ssl"')) ?>

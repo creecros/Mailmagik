@@ -10,3 +10,5 @@ define('KEY_PREFIX', 'metamagikkey_');
 
 define('CMD_TASKMAILNOTIFY', 'mailmagik:notify');
 define('EVENT_TASKMAILNOTIFY', 'task.email');
+
+define('DEFAULT_ENCODING', 'UTF-8');

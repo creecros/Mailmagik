@@ -24,6 +24,7 @@ class MailHelper extends Base
         $user = $this->configModel->get('mailmagik_user', '');
         $password = $this->configModel->get('mailmagik_password', '');
         $folder = $this->configModel->get('mailmagik_folder', 'INBOX');
+        $encoding = array_values($this->helper->mailHelper->getSupportedEncodings())[$this->configModel->get('mailmagik_encoding')];
         $error = false;
 
         if ($server != '' && $port != '' && $user != '' && $password != '') {
@@ -31,7 +32,8 @@ class MailHelper extends Base
                 '{' . $server . ':' . $port . $proto . '}' . $folder,
                 $user,
                 $password,
-                false
+                false,
+                $encoding
             );
             try
             {
@@ -276,5 +278,15 @@ class MailHelper extends Base
         $emails = array_reverse($emails);
 
         return $emails;
+    }
+
+    public function getSupportedEncodings()
+    {
+        $encodings = mb_list_encodings();
+        if (!in_array('US-ASCII', $encodings)) {
+            $encodings[] = 'US-ASCII';
+        }
+
+        return $encodings;
     }
 }

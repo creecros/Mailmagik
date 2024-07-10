@@ -9,7 +9,6 @@ use Kanboard\Plugin\Mailmagik\Action\ConvertEmailToTask;
 use Kanboard\Plugin\Mailmagik\Console\FetchMail;
 use Kanboard\Plugin\Mailmagik\Console\TaskMailNotify;
 use Kanboard\Plugin\Mailmagik\Helper\MailHelper;
-// use Kanboard\Plugin\Mailmagik\Model\NotificationModel;
 
 require_once('constants.php');
 
@@ -31,6 +30,7 @@ class Plugin extends Base
             'mailmagik_parsing_enable' => '0',
             'mailmagik_parsing_remove_data' => '0',
             'mailmagik_address' => '',
+            'mailmagik_encoding' => array_search(DEFAULT_ENCODING, mb_list_encodings()),
         ));
 
         // Helper
@@ -83,7 +83,7 @@ class Plugin extends Base
 
     public function getPluginVersion()
     {
-        return '1.4.0-rc';
+        return '1.4.0-rc1';
     }
 
     public function getPluginDescription()
