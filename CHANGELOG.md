@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- [#45](https://github.com/creecros/Mailmagik/issues/45) Cronjob Link just for Mailmagik, allowing to invoke mailmagik:fetchmail from webcron systems.
+
 - [#40](https://github.com/creecros/Mailmagik/issues/40) Send notification for incoming task emails. The mailbox is scanned by the regular mailmagik:fetchmail cron job.
 
 - [#41](https://github.com/creecros/Mailmagik/issues/41) Config option to select the server encoding, for compatibility with Exchange IMAP.
