@@ -29,6 +29,7 @@ class Plugin extends Base
             'mailmagik_parse_via' => '1',
             'mailmagik_parsing_enable' => '0',
             'mailmagik_parsing_remove_data' => '0',
+            'mailmagik_task_notify' => '0',
             'mailmagik_address' => '',
             'mailmagik_encoding' => array_search(DEFAULT_ENCODING, mb_list_encodings()),
         ));

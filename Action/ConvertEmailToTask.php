@@ -173,6 +173,10 @@ class ConvertEmailToTask extends Base
                             $this->helper->mailHelper->saveAndUpload($task_id, $attachment);
                         }
                     }
+
+                    if ($this->configModel->get('mailmagik_task_notify', '0') == 1) {
+                        $this->helper->mailHelper->sendConfirmMail($from_email, $from_name, $task_id);
+                    }
                 }
 
                 $this->helper->mailHelper->disposeMessage($mailbox, $mail_id);
