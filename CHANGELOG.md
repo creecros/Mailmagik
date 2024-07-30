@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+- Nothing so far
+
+## [1.4.0](https://github.com/creecros/Mailmagik/releases/tag/1.4.0) - 2024-07-30
+
 ### Added
 
 - [#45](https://github.com/creecros/Mailmagik/issues/45) Cronjob Link just for Mailmagik, allowing to invoke mailmagik:fetchmail from webcron systems.

@@ -84,7 +84,7 @@ class Plugin extends Base
 
     public function getPluginVersion()
     {
-        return '1.4.0-rc1';
+        return '1.4.0';
     }
 
     public function getPluginDescription()
