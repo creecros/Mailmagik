@@ -23,10 +23,9 @@ class TaskMailNotify extends BaseCommand
         $tasks = array();
         $emails = $this->helper->mailHelper->checkMailBox();
 
-        // FIXME invalid Task#
         $tasks = array();
         foreach ($emails as $email) {
-            $task = $this->taskFinderModel->getById($email['task_id']);
+            if (($task = $this->taskFinderModel->getById($email['task_id'])) == null) continue;
             $task['project_name'] = $this->projectModel->getById($task['project_id'])['name'];
             $task['email'] = $email['email'];
             $tasks[] = $task;
