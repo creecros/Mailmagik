@@ -51,7 +51,7 @@ class ParsingHelper extends Base
      */
     public function verifyData(&$updates, &$task)
     {
-        $allmeta = $this->helper->parsing->getAllMeta($task['id']);  // With prefix
+        $allmeta = $this->getAllMeta($task['id']);  // With prefix
         $project_id = $task['project_id'];
         $veto_keys = array();
 
@@ -131,11 +131,11 @@ class ParsingHelper extends Base
     {
         $updates = array();
 
-        $parsed_taskdata = $this->helper->parsing->parseData($message);
-        $parsed_metadata = $this->helper->parsing->parseData($message, '$@', '@$');
+        $parsed_taskdata = $this->parseData($message);
+        $parsed_metadata = $this->parseData($message, '$@', '@$');
 
         if ($this->configModel->get('mailmagik_parsing_remove_data', '1') == 1) {
-            $updates['description'] = $this->helper->parsing->removeTaskData($message);
+            $updates['description'] = $this->removeTaskData($message);
         } else {
             $updates['description'] = $message;
         }
