@@ -24,6 +24,8 @@ class ConvertEmailToTask extends Base
     public $QO = "\"'“‘«„";
     public $QC = "\"'”’»“";
 
+    private $dtformat = 'Y-m-d H:i';
+
     /**
      * Get automatic action description
      *
@@ -199,13 +201,7 @@ class ConvertEmailToTask extends Base
 
         // Start- and due date
 
-        if (($date_due = $this->extractDate($subject, 'd')) != null) {
-            $attributes = array_merge($attributes, array('date_due' => $date_due));
-        }
-
-        if (($date_started = $this->extractDate($subject, 's')) != null) {
-            $attributes = array_merge($attributes, array('date_started' => $date_started));
-        }
+        $attributes = array_merge($attributes, $this->extractDates($subject));
 
         // Priority
 
@@ -278,8 +274,8 @@ class ConvertEmailToTask extends Base
 
     /**
      * Extract attributes that may be multi word. This relates to Column,
-     * Category and Tags. A multi word atribute requires quoting with " or '.
-     * Single word without qouting is still OK.
+     * Category and Tags. A multi word attribute requires quoting with " or '.
+     * Single word without quoting is still OK.
      *
      * @param string $subject reference
      * @param string $project_id
@@ -325,5 +321,47 @@ class ConvertEmailToTask extends Base
     private function cleanup(string $match) : string
     {
         return trim($match, ' ' . $this->QO . $this->QC);
+    }
+
+    private function amend(&$attributes, $key, $value)
+    {
+        $attributes = array_merge($attributes, array($key => date($this->dtformat, $value)));
+    }
+
+    /**
+     * Extract date_started and date_due from the subject line.
+     * A multi word attribute requires quoting with " or '.
+     * Single word without quoting is still OK.
+     *
+     * @param string $subject reference
+     * @return array $attributes
+     */
+    private function extractDates(&$subject) : array
+    {
+        $regex = "/(s|d):([$this->QO].*[$this->QC]|\d{4}-\d{2}-\d{2})/U";
+        $this->dtformat = $this->helper->parsing->getDateFormat();
+        $attributes = array();
+
+        do {
+            $matches = array();
+            if ($rc = preg_match($regex, $subject, $matches)) {
+                if (($timestamp = strtotime($this->cleanup($matches[2]))) !== false) {
+                    switch ($matches[1]) {
+                        case 's':
+                            $this->amend($attributes, 'date_started', $timestamp);
+                            break;
+                        case 'd':
+                            $this->amend($attributes, 'date_due', $timestamp);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                $subject = preg_filter($regex, '', $subject, 1);
+            }
+        } while ($rc);
+
+        return $attributes;
     }
 }

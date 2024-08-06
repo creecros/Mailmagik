@@ -3,9 +3,25 @@
 namespace Kanboard\Plugin\Mailmagik\Helper;
 
 use Kanboard\Core\Base;
+use Pimple\Container;
 
 class ParsingHelper extends Base
 {
+    private $dtFormat = 'Y-m-d H:i';
+
+    public function __construct(Container $container)
+    {
+        parent::__construct($container);
+        $this->dtFormat =
+            $this->configModel->get('application_date_format', 'Y-m-d') . ' ' .
+            $this->configModel->get('application_time_format', 'H:i');
+    }
+
+    public function getDateFormat()
+    {
+        return $this->dtFormat;
+    }
+
     /**
      * Parse message for data to feed DB
      *
@@ -141,6 +157,21 @@ class ParsingHelper extends Base
         } else {
             $updates['description'] = $message;
         }
+
+        // Patch any known date field
+        foreach ($parsed_taskdata as $key => &$value) {
+            switch ($key) {
+                case 'date_started':
+                case 'date_due':
+                    if (($timestamp = strtotime($value)) !== false) {
+                        $value = date($this->dtFormat, $timestamp);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        unset($value);
 
         $prefixed_meta = array();
         foreach ($parsed_metadata as $key => $value) {
