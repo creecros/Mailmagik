@@ -8,12 +8,13 @@ use Pimple\Container;
 class ParsingHelper extends Base
 {
     private $dtFormat = 'Y-m-d H:i';
+    private $dateFormat = 'Y-m-d';
 
     public function __construct(Container $container)
     {
         parent::__construct($container);
-        $this->dtFormat =
-            $this->configModel->get('application_date_format', 'Y-m-d') . ' ' .
+        $this->dateFormat = $this->configModel->get('application_date_format', 'Y-m-d');
+        $this->dtFormat = $this->dateFormat . ' ' .
             $this->configModel->get('application_time_format', 'H:i');
     }
 
@@ -175,6 +176,14 @@ class ParsingHelper extends Base
 
         $prefixed_meta = array();
         foreach ($parsed_metadata as $key => $value) {
+            // TODO Patch  meta dates
+            // NOTE Meta w/o time support, must be removed, will be stored as string.
+            if ($this->metadataTypeModel->isTypeDate($key)){
+                if (($timestamp = strtotime($value)) !== false) {
+                    $value = date($this->dateFormat, $timestamp);
+                }
+            }
+
             $prefixed_meta[KEY_PREFIX . $key] = $value;
         }
 
