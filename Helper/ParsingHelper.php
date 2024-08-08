@@ -36,7 +36,7 @@ class ParsingHelper extends Base
         $values = array();
 
         $pattern = sprintf(
-                '/%s(.*?)%s/',
+                '/%s(.*?)%s/s',
                 preg_quote($start),
                 preg_quote($end)
             );
