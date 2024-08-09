@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-- Nothing so far
+## Changed
+
+- Exclude MetaMagik fields from parsing if the Plugin is not installed.
 
 ## [1.4.0](https://github.com/creecros/Mailmagik/releases/tag/1.4.0) - 2024-07-30
 

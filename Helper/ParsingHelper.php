@@ -130,9 +130,11 @@ class ParsingHelper extends Base
     public function parseAllData(string $message, $task_id) : array
     {
         $updates = array();
-
+        
         $parsed_taskdata = $this->parseData($message);
-        $parsed_metadata = $this->parseData($message, '$@', '@$');
+        $parsed_metadata = isset($this->pluginLoader->getPlugins()['MetaMagik']) 
+            ? $this->parseData($message, '$@', '@$') 
+            : array();
 
         if ($this->configModel->get('mailmagik_parsing_remove_data', '1') == 1) {
             $updates['description'] = $this->removeTaskData($message);
