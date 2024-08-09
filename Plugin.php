@@ -102,6 +102,7 @@ class Plugin extends Base
         return array(
             'Plugin\Mailmagik\Model' => array(
                 'NotificationModel',
+                'MyMetadataTypeModel',
             )
         );
     }

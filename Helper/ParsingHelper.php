@@ -147,10 +147,10 @@ class ParsingHelper extends Base
     public function parseAllData(string $message, $task_id) : array
     {
         $updates = array();
-        
+
         $parsed_taskdata = $this->parseData($message);
-        $parsed_metadata = isset($this->pluginLoader->getPlugins()['MetaMagik']) 
-            ? $this->parseData($message, '$@', '@$') 
+        $parsed_metadata = isset($this->pluginLoader->getPlugins()['MetaMagik'])
+            ? $this->parseData($message, '$@', '@$')
             : array();
 
         if ($this->configModel->get('mailmagik_parsing_remove_data', '1') == 1) {
@@ -176,9 +176,15 @@ class ParsingHelper extends Base
 
         $prefixed_meta = array();
         foreach ($parsed_metadata as $key => $value) {
-            // TODO Patch  meta dates
+            // Patch meta dates.
             // NOTE Meta w/o time support, must be removed, will be stored as string.
-            if ($this->metadataTypeModel->isTypeDate($key)){
+            // If the required method isTypeDate is missing, use the own implementation.
+
+            $model = method_exists($this->metadataTypeModel, 'isTypeDate')
+                ? 'metadataTypeModel'
+                : 'myMetadataTypeModel';
+
+            if ($this->$model->isTypeDate($key)){
                 if (($timestamp = strtotime($value)) !== false) {
                     $value = date($this->dateFormat, $timestamp);
                 }
