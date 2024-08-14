@@ -9,15 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-## Fixed
-
-- [#46](https://github.com/creecros/Mailmagik/issues/46) Allow multi line text for custom textarea fields.
-
-## Added
+### Added
 
 - When parsing dates from email body, a textual representation can be used instead of a date.
 
-## Changed
+### Changed
 
 - Exclude MetaMagik fields from parsing if the Plugin is not installed.
 
