@@ -115,6 +115,13 @@ Examples:
 
 Optionally, this assignments can be removed from email body after processing.
 
+When parsing dates from email body, a textual representation can be user instead of a date. This works for both, standard- and custom date fields.
+Example:
+
+    &@date_due=next Friday@&
+
+These texts must be in English language and cannot be translated.
+
 **Plugin Authors:**
 - _[creecros](https://github.com/creecros)_
 - _[alfredbuehler](https://github.com/alfredbuehler)_

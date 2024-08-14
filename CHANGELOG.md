@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## Added
+
+- When parsing dates from email body, a textual representation can be user instead of a date.
+
 ## Changed
 
 - Exclude MetaMagik fields from parsing if the Plugin is not installed.
