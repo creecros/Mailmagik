@@ -58,7 +58,7 @@ class ParsingHelper extends Base
      */
     public function removeTaskData(string $message) : string
     {
-        return preg_replace('/[&$]@.*@[&$]/', '', $message);
+        return preg_replace('/[&$]@.*@[&$]/s', '', $message);
     }
 
     /**
