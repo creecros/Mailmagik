@@ -93,6 +93,10 @@
             'default' => '1',
             'values'  => $values,
         )) ?>
+        <?= $this->form->label(t('Pattern of files not to attach'),
+                               'mailmagik_exclude_files_pattern') ?>
+        <?= $this->form->text('mailmagik_exclude_files_pattern',
+                              $values, $errors) ?>
     </fieldset>
     <fieldset>
         <legend><?= t('Task Emails') ?></legend>
