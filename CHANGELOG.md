@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Nothing so far
 
+## [1.5.1](https://github.com/creecros/Mailmagik/releases/tag/1.5.1) - 2024-09-03
+
+### Fixed
+
+- [#47](https://github.com/creecros/Mailmagik/issues/47) Task mail parsing collides with CommentOnTask, makes it non-functional.
+
 ## [1.5.0](https://github.com/creecros/Mailmagik/releases/tag/1.5.0) - 2024-08-19
 
 ### Added
