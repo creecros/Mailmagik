@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-- Nothing so far
+### Added
+
+- [#49](https://github.com/creecros/Mailmagik/issues/49) Exclusion of particular attachment files, by [elear](https://github.com/elear)
 
 ## [1.5.1](https://github.com/creecros/Mailmagik/releases/tag/1.5.1) - 2024-09-03
 
