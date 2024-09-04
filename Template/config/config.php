@@ -71,13 +71,6 @@
         )) ?>
 
         <?= $this->render($checkbox, array(
-            'label'   => t('Include attachments when converting to task automatically.'),
-            'name'    => 'mailmagik_include_files_tasks',
-            'default' => '1',
-            'values'  => $values,
-        )) ?>
-
-        <?= $this->render($checkbox, array(
             'label'   => t('Send confirmation email to the task creator.'),
             'name'    => 'mailmagik_task_notify',
             'default' => '0',
@@ -85,7 +78,14 @@
         )) ?>
 
         <br/>
-        <p><strong><?= t('Comments') ?></strong></p>
+        <p><strong><?= t('Attachments') ?></strong></p>
+
+        <?= $this->render($checkbox, array(
+            'label'   => t('Include attachments when converting to task automatically.'),
+            'name'    => 'mailmagik_include_files_tasks',
+            'default' => '1',
+            'values'  => $values,
+        )) ?>
 
         <?= $this->render($checkbox, array(
             'label'   => t('Include attachments when converting to comment automatically.'),
@@ -93,6 +93,7 @@
             'default' => '1',
             'values'  => $values,
         )) ?>
+
         <?= $this->form->label(t('Pattern of files not to attach'),
                                'mailmagik_exclude_files_pattern') ?>
         <?= $this->form->text('mailmagik_exclude_files_pattern',
