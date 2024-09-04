@@ -230,6 +230,12 @@ class MailHelper extends Base
 
     public function saveAndUpload($task_id, &$attachment)
     {
+        $excludes=$this->configModel->get('mailmagik_exclude_files_pattern', '');
+        if ( $excludes != '') {
+            if ( preg_match('/' . $excludes . '/',$attachment->name) ) {
+                    return;
+                }
+            }
         $tmp_name =  $this->mktempdir($task_id) . $attachment->name;
         $attachment->setFilePath($tmp_name);
         if (!file_exists($tmp_name)) {
