@@ -133,12 +133,15 @@ class ConvertEmailToComment extends Base
                 $project_users = array_merge($userMembers, $groupMembers);
                 $user_in_project = false;
 
-                foreach ($project_users as $user) {
-                    if ($user['id'] = $connect_to_user['id']) {
-                        $user_in_project = true;
-                        break;
+                if ( ! is_null($connect_to_user) ) {
+                    foreach ($project_users as $user) {
+                        if ($user['id'] = $connect_to_user['id']) {
+                            $user_in_project = true;
+                            break;
+                        }
                     }
                 }
+                
                 if ($user_in_project) {
                     $comment = (isset($subject) ? "#$subject\n\n" : '') . (isset($message) ? $message : '');
                     $values = array(
