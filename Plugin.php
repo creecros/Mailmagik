@@ -3,11 +3,13 @@
 namespace Kanboard\Plugin\Mailmagik;
 
 use Kanboard\Core\Plugin\Base;
+use Kanboard\Core\Security\Role;
 use Kanboard\Notification\MailNotification;
 use Kanboard\Plugin\Mailmagik\Action\ConvertEmailToComment;
 use Kanboard\Plugin\Mailmagik\Action\ConvertEmailToTask;
 use Kanboard\Plugin\Mailmagik\Console\FetchMail;
 use Kanboard\Plugin\Mailmagik\Console\TaskMailNotify;
+use Kanboard\Plugin\Mailmagik\Controller\FetchmailController;
 use Kanboard\Plugin\Mailmagik\Helper\MailHelper;
 
 require_once('constants.php');
@@ -66,6 +68,10 @@ class Plugin extends Base
             t('Email'),
             '\Kanboard\Plugin\Mailmagik\Notification\MailNotification'
         );
+
+        // Webcron
+        $this->applicationAccessMap->add('FetchmailController', array('run'), Role::APP_PUBLIC);
+        $this->route->addRoute('fetchmail', 'FetchmailController', 'run', 'Mailmagik');
     }
 
     public function onStartup()

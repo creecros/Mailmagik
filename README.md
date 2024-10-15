@@ -45,7 +45,11 @@ This plugin allows you to connect Kanboard directly to an IMAP server. Once conn
 Since release 1.4.0, mail fetching can also be triggered by a webcron system.
 Simply invoke the URL
 ```
-https://<your_server>/?controller=FetchmailController&plugin=Mailmagik&action=run&token=<your_token>
+https://<your_server>/?controller=FetchmailController&plugin=Mailmagik&action=run&token=<your_webhook_token>
+```
+With URL rewriting enabled
+```
+https://<your_server>/fetchmail?token=<your_webhook_token>
 ```
 You'll get
 ```

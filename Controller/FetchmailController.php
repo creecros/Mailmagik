@@ -20,6 +20,6 @@ class FetchmailController extends BaseController
         $this->cli->setAutoExit(false);
         $this->cli->run($input, $output);
 
-        $this->response->html( CMD_FETCHMAIL . ' executed');
+        $this->response->html(CMD_FETCHMAIL . ' executed');
     }
 }
