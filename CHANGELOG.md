@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Nothing so far.
 
+## [1.6.1](https://github.com/creecros/Mailmagik/releases/tag/1.6.1) - 2024-11-01
+
+### Fixed
+
+- Authentication for webcron access, relates to [#45](https://github.com/creecros/Mailmagik/issues/45).
+
+### Added
+
+- Custom route *fetchmail* for use in webcron URL.
+
 ## [1.6.0](https://github.com/creecros/Mailmagik/releases/tag/1.6.0) - 2024-10-17
 
 ### Added
