@@ -119,7 +119,7 @@ class ConvertEmailToComment extends Base
 
             $is_task = $this->taskFinderModel->exists($task_id);
             $project_id = ($is_task) ? $this->taskFinderModel->getProjectId($task_id) : 0;
-            $is_in_project = ($project_id = $data['project_id']) ? true : false;
+            $is_in_project = ($project_id == $data['project_id']) ? true : false;
 
             if (!is_null($task_id) && $is_task && $is_in_project) {
                 if (!$this->userModel->getByEmail($from_email)) {
@@ -134,7 +134,7 @@ class ConvertEmailToComment extends Base
                 $user_in_project = false;
 
                 foreach ($project_users as $user) {
-                    if ($user['id'] = $connect_to_user['id']) {
+                    if ($user['id'] == $connect_to_user['id']) {
                         $user_in_project = true;
                         break;
                     }
